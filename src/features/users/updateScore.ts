@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { db } from '../../lib/db'
-import { verifyGJP, verifyGJPOrExit } from '../../lib/tools'
+import { verifyGJPOrExit } from '../../lib/tools'
 
 type Body = {
     accountID: number,
