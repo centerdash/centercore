@@ -11,5 +11,5 @@ npm run start# (or "yarn start") start builded server
 ```
 
 # Credits
-[Cvolton](https://github.com/cvolton)
-All [creators](https://gdprogra.me/#/CREDITS) of [gdprogra.me](https://gdprogra.me/#)
+- [Cvolton](https://github.com/cvolton)
+- All [creators](https://gdprogra.me/#/CREDITS) of [gdprogra.me](https://gdprogra.me/#)
