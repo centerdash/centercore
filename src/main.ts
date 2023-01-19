@@ -11,7 +11,10 @@ import getUserInfoHandler from './features/users/getUserInfo'
 import getUsersHandler from './features/users/getUsers'
 import updateUserSettingsHandler from './features/users/updateUserSettings'
 
-import createFriendRequestHandler from './features/friends/createFriendRequest'
+import uploadAccComment from './features/comments/uploadAccComment'
+import getAccComments from './features/comments/getAccComments'
+
+import createFriendRequestHandler from './features/friends/uploadFriendRequest'
 import removeFriendRequestHandler from './features/friends/removeFriendRequest'
 
 const server = fastify({ bodyLimit: 104857600 })
@@ -24,6 +27,9 @@ server.post(`${process.env.SERVER_BASE_PATH}/updateGJUserScore22.php`, updateSco
 server.post(`${process.env.SERVER_BASE_PATH}/getGJUserInfo20.php`, getUserInfoHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJUsers20.php`, getUsersHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/updateGJAccSettings20.php`, updateUserSettingsHandler)
+
+server.post(`${process.env.SERVER_BASE_PATH}/getGJAccountComments20.php`, getAccComments)
+server.post(`${process.env.SERVER_BASE_PATH}/uploadGJAccComment20.php`, uploadAccComment)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadFriendRequest20.php`, createFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJFriendRequests20.php`, removeFriendRequestHandler)

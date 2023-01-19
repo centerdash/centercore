@@ -1,7 +1,46 @@
-import { compareSync } from 'bcrypt'
 import { FastifyReply } from 'fastify'
-import { db } from './db'
 import XOR from './XOR'
+
+/**
+ * @returns time difference in relative format between current time and previous
+ */
+export function timeDifference(previous: number) {
+    let msPerMinute = 60 * 1000
+    let msPerHour = msPerMinute * 60
+    let msPerDay = msPerHour * 24
+    let msPerMonth = msPerDay * 30
+    let msPerYear = msPerDay * 365
+
+    let elapsed = getTimestamp() - previous
+
+    if(elapsed < 60) {
+        return Math.round(elapsed/60) + ' seconds'
+    }
+
+    if(elapsed < msPerMinute) {
+        return Math.round(elapsed/1000) + ' minuteslol'
+    }
+
+    else if(elapsed < msPerHour) {
+        return Math.round(elapsed/msPerMinute) + ' minutes'
+    }
+
+    else if(elapsed < msPerDay ) {
+        return Math.round(elapsed/msPerHour ) + ' hours'
+    }
+
+    else if(elapsed < msPerMonth) {
+        return Math.round(elapsed/msPerDay) + ' days'
+    }
+
+    else if(elapsed < msPerYear) {
+        return Math.round(elapsed/msPerMonth) + ' months'
+    }
+
+    else {
+        return Math.round(elapsed/msPerYear ) + ' years'
+    }
+}
 
 /**
  * @returns current timestamp
