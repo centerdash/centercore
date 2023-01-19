@@ -9,9 +9,10 @@ import loginHandler from './features/accounts/login'
 import updateScoreHandler from './features/users/updateScore'
 import getUserInfoHandler from './features/users/getUserInfo'
 import getUsersHandler from './features/users/getUsers'
+import updateUserSettingsHandler from './features/users/updateUserSettings'
 
-import createFriendRequest from './features/friends/createFriendRequest'
-import removeFriendRequest from './features/friends/removeFriendRequest'
+import createFriendRequestHandler from './features/friends/createFriendRequest'
+import removeFriendRequestHandler from './features/friends/removeFriendRequest'
 
 const server = fastify({ bodyLimit: 104857600 })
 server.register(formbody)
@@ -22,9 +23,10 @@ server.post(`${process.env.SERVER_BASE_PATH}/accounts/loginGJAccount.php`, login
 server.post(`${process.env.SERVER_BASE_PATH}/updateGJUserScore22.php`, updateScoreHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJUserInfo20.php`, getUserInfoHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJUsers20.php`, getUsersHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/updateGJAccSettings20.php`, updateUserSettingsHandler)
 
-server.post(`${process.env.SERVER_BASE_PATH}/uploadFriendRequest20.php`, createFriendRequest)
-server.post(`${process.env.SERVER_BASE_PATH}/deleteGJFriendRequests20.php`, removeFriendRequest)
+server.post(`${process.env.SERVER_BASE_PATH}/uploadFriendRequest20.php`, createFriendRequestHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/deleteGJFriendRequests20.php`, removeFriendRequestHandler)
 
 server.listen({
     port: Number(process.env.SERVER_PORT),
