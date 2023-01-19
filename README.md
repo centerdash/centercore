@@ -1,11 +1,14 @@
 # centercore
 Geometry Dash server emulator in TypeScript and MySQL
 
-# Setup and start
+# Setup
 ```console
 cp example.env .env # copy example settings
-# edit .env for your server
+```
+edit .env for your server
 
+# Start
+```console
 npm run build # (or "yarn build") build TS files
 npm run start# (or "yarn start") start builded server
 ```
