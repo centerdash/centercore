@@ -5,40 +5,36 @@ import XOR from './XOR'
  * @returns time difference in relative format between current time and previous
  */
 export function timeDifference(previous: number) {
-    let msPerMinute = 60 * 1000
-    let msPerHour = msPerMinute * 60
-    let msPerDay = msPerHour * 24
-    let msPerMonth = msPerDay * 30
-    let msPerYear = msPerDay * 365
+    let perMinute = 60
+    let perHour = perMinute * 60
+    let perDay = perHour * 24
+    let perMonth = perDay * 30
+    let perYear = perDay * 365
 
-    let elapsed = getTimestamp() - previous
+    let elapsed = (Date.now() / 1000) - previous
 
-    if(elapsed < 60) {
-        return Math.round(elapsed/60) + ' seconds'
+    if(elapsed < perMinute) {
+        return Math.round(elapsed) + ' seconds'
     }
 
-    if(elapsed < msPerMinute) {
-        return Math.round(elapsed/1000) + ' minuteslol'
+    else if(elapsed < perHour) {
+        return Math.round(elapsed/perMinute) + ' minutes'
     }
 
-    else if(elapsed < msPerHour) {
-        return Math.round(elapsed/msPerMinute) + ' minutes'
+    else if(elapsed < perDay ) {
+        return Math.round(elapsed/perHour ) + ' hours'
     }
 
-    else if(elapsed < msPerDay ) {
-        return Math.round(elapsed/msPerHour ) + ' hours'
+    else if(elapsed < perMonth) {
+        return Math.round(elapsed/perDay) + ' days'
     }
 
-    else if(elapsed < msPerMonth) {
-        return Math.round(elapsed/msPerDay) + ' days'
-    }
-
-    else if(elapsed < msPerYear) {
-        return Math.round(elapsed/msPerMonth) + ' months'
+    else if(elapsed < perYear) {
+        return Math.round(elapsed/perMonth) + ' months'
     }
 
     else {
-        return Math.round(elapsed/msPerYear ) + ' years'
+        return Math.round(elapsed/perYear ) + ' years'
     }
 }
 
@@ -53,9 +49,9 @@ export function getTimestamp() {
  * @returns random number between min and max
  */
 export function random(min: number, max: number) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min + 1) + min); // The maximum is inclusive and the minimum is inclusive
+    min = Math.ceil(min)
+    max = Math.floor(max)
+    return Math.floor(Math.random() * (max - min + 1) + min) // The maximum is inclusive and the minimum is inclusive
 }
 
 /**
