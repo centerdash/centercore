@@ -5,7 +5,8 @@ import { verifyGJPOrExit, getTimestamp } from '../../lib/tools'
 type Body = {
     accountID: number,
     gjp: string,
-    targetAccountID: number
+    targetAccountID: number,
+    isSender: number
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
@@ -13,7 +14,15 @@ export default function handler(req: FastifyRequest<{ Body: Body }>, rep: Fastif
 
     verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
-    db.query("DELETE FROM friend_reqs WHERE toID = ?", [req.body.targetAccountID], (err, q) => {
-        rep.send(1)
-    })
+    if(!req.body.isSender) req.body.isSender = 0
+
+    if(req.body.isSender == 1) {
+        db.query("DELETE FROM friend_reqs WHERE fromID = ? AND toID = ? LIMIT 1", [req.body.accountID, req.body.targetAccountID], (err, q) => {
+            rep.send(1)
+        })
+    } else {
+        db.query("DELETE FROM friend_reqs WHERE fromID = ? AND toID = ? LIMIT 1", [req.body.targetAccountID, req.body.accountID], (err, q) => {
+            rep.send(1)
+        })
+    }
 }

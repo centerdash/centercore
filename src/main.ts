@@ -16,6 +16,7 @@ import getAccComments from './features/comments/getAccComments'
 
 import createFriendRequestHandler from './features/friends/uploadFriendRequest'
 import removeFriendRequestHandler from './features/friends/removeFriendRequest'
+import getFriendRequestsHandler from './features/friends/getFriendRequests'
 
 const server = fastify({ bodyLimit: 104857600 })
 server.register(formbody)
@@ -33,6 +34,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/uploadGJAccComment20.php`, uploadAc
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadFriendRequest20.php`, createFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJFriendRequests20.php`, removeFriendRequestHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJFriendRequests20.php`, getFriendRequestsHandler)
 
 server.listen({
     port: Number(process.env.SERVER_PORT),
