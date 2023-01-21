@@ -3,23 +3,33 @@ import formbody from '@fastify/formbody'
 import dotenv from 'dotenv'
 dotenv.config()
 
+// accounts
 import registerHandler from './features/accounts/registerAccount'
 import loginHandler from './features/accounts/loginAccount'
 
+// users
 import updateScoreHandler from './features/users/updateScore'
 import getUserInfoHandler from './features/users/getUserInfo'
 import getUsersHandler from './features/users/getUsers'
 import updateUserSettingsHandler from './features/users/updateUserSettings'
 
+// comments
 import uploadAccComment from './features/comments/uploadAccComment'
 import getAccComments from './features/comments/getAccComments'
 import deleteAccComment from './features/comments/deleteAccComment'
 
+// friends
 import createFriendRequestHandler from './features/friends/uploadFriendRequest'
 import removeFriendRequestHandler from './features/friends/removeFriendRequest'
 import getFriendRequestsHandler from './features/friends/getFriendRequests'
 import blockUserHandler from './features/friends/blockUser'
+import unblockUserHandler from './features/friends/unblockUser'
+import getUserListHandler from './features/friends/getUserList'
+import readFriendRequestHandler from './features/friends/readFriendRequest'
+import acceptFriendRequestHandler from './features/friends/acceptFriendRequest'
+import removeFriendHandler from './features/friends/removeFriend'
 
+// misc
 import likeItemHandler from './features/misc/likeItem'
 
 const server = fastify({ bodyLimit: 104857600 })
@@ -41,6 +51,11 @@ server.post(`${process.env.SERVER_BASE_PATH}/uploadFriendRequest20.php`, createF
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJFriendRequests20.php`, removeFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJFriendRequests20.php`, getFriendRequestsHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/blockGJUser20.php`, blockUserHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/unblockGJUser20.php`, unblockUserHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJUserList20.php`, getUserListHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/readGJFriendRequest20.php`, readFriendRequestHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/acceptGJFriendRequest20.php`, acceptFriendRequestHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/removeGJFriend20.php`, removeFriendHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler)
 
