@@ -1,4 +1,6 @@
 import { FastifyReply } from 'fastify'
+import { compareSync } from 'bcrypt'
+import { db } from './db'
 import XOR from './XOR'
 
 /**
@@ -67,10 +69,10 @@ export function generateString(length: number = 10) {
 }
 
 /**
- * verify GJP of user
- * @returns true or false
+ * decodes GJP
+ * @returns decoded password
  */
-export function verifyGJP(accountID: number, gjp: string) {
+export function decodeGJP(gjp: string) {
     return new XOR().cipher(Buffer.from(gjp.replace(/_/g, '/').replace(/-/g, '+'), 'base64').toString('utf8'), 37526)
 }
 
@@ -79,6 +81,20 @@ export function verifyGJP(accountID: number, gjp: string) {
  * @returns true or -1 to FastifyReply
  */
 export function verifyGJPOrExit(accountID: number, gjp: string, rep: FastifyReply) {
-    if(verifyGJP(accountID, gjp)) return true
-    else return rep.send(-1)
+    return new Promise((resolve, reject) => {
+        db.query("SELECT password FROM accounts WHERE accountID = ?", [accountID], (err, q) => {
+            if(q.length == 0) return rep.send(-1)
+    
+            if(compareSync(decodeGJP(gjp), q[0].password)) return resolve(true)
+            else return rep.send(-1)
+        })
+    })
+}
+
+/**
+ * encode GD message
+ * @returns encoded message
+ */
+export function encodeMessage(msg: string) {
+    return Buffer.from(new XOR().cipher(msg, 14251)).toString('base64')
 }

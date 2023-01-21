@@ -29,6 +29,10 @@ import readFriendRequestHandler from './features/friends/readFriendRequest'
 import acceptFriendRequestHandler from './features/friends/acceptFriendRequest'
 import removeFriendHandler from './features/friends/removeFriend'
 
+// messages
+import uploadMessageHandler from './features/messages/uploadMessage'
+import getMessagesHandler from './features/messages/getMessages'
+
 // misc
 import likeItemHandler from './features/misc/likeItem'
 
@@ -57,7 +61,14 @@ server.post(`${process.env.SERVER_BASE_PATH}/readGJFriendRequest20.php`, readFri
 server.post(`${process.env.SERVER_BASE_PATH}/acceptGJFriendRequest20.php`, acceptFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/removeGJFriend20.php`, removeFriendHandler)
 
+server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessageHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)
+
 server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler)
+
+server.setNotFoundHandler((req, rep) => {
+    rep.code(404).send(-1)
+})
 
 server.listen({
     port: Number(process.env.SERVER_PORT),
