@@ -32,6 +32,8 @@ import removeFriendHandler from './features/friends/removeFriend'
 // messages
 import uploadMessageHandler from './features/messages/uploadMessage'
 import getMessagesHandler from './features/messages/getMessages'
+import downloadMessageHandler from './features/messages/downloadMessage'
+import deleteMessagesHandler from './features/messages/deleteMessages'
 
 // misc
 import likeItemHandler from './features/misc/likeItem'
@@ -63,6 +65,8 @@ server.post(`${process.env.SERVER_BASE_PATH}/removeGJFriend20.php`, removeFriend
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessageHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/downloadGJMessage20.php`, downloadMessageHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/deleteGJMessages20.php`, deleteMessagesHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler)
 

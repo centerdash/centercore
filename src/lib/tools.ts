@@ -90,11 +90,3 @@ export function verifyGJPOrExit(accountID: number, gjp: string, rep: FastifyRepl
         })
     })
 }
-
-/**
- * encode GD message
- * @returns encoded message
- */
-export function encodeMessage(msg: string) {
-    return Buffer.from(new XOR().cipher(msg, 14251)).toString('base64')
-}
