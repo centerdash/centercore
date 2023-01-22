@@ -38,6 +38,7 @@ import deleteMessagesHandler from './features/messages/deleteMessages'
 // misc
 import likeItemHandler from './features/misc/likeItem'
 import getAccountURLHandler from './features/misc/getAccountURL'
+import requestUserAccessHandler from './features/misc/requestUserAccess'
 
 const server = fastify({ bodyLimit: 104857600 })
 server.register(formbody)
@@ -71,6 +72,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/deleteGJMessages20.php`, deleteMess
 
 server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getAccountURL.php`, getAccountURLHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/requestUserAccess.php`, requestUserAccessHandler)
 
 server.setNotFoundHandler((req, rep) => {
     rep.code(404).send(-1)
