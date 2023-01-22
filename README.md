@@ -10,7 +10,7 @@ edit .env for your server
 # Start
 ```bash
 npm run build # (or "yarn build") build TS files
-npm run start# (or "yarn start") start builded server
+npm run start # (or "yarn start") start builded server
 ```
 
 # Differences from real GD
