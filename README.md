@@ -2,15 +2,15 @@
 Geometry Dash server emulator in TypeScript and MySQL
 
 # Setup
-```console
+```bash
 cp example.env .env # copy example settings
 ```
 edit .env for your server
 
 # Start
-```console
+```bash
 npm run build # (or "yarn build") build TS files
-npm run start# (or "yarn start") start builded server
+npm run start # (or "yarn start") start builded server
 ```
 
 # Differences from real GD
