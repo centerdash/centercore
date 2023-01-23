@@ -29,6 +29,9 @@ import readFriendRequestHandler from './features/friends/readFriendRequest'
 import acceptFriendRequestHandler from './features/friends/acceptFriendRequest'
 import removeFriendHandler from './features/friends/removeFriend'
 
+// levels
+import uploadLevelHandler from './features/levels/uploadLevel'
+
 // messages
 import uploadMessageHandler from './features/messages/uploadMessage'
 import getMessagesHandler from './features/messages/getMessages'
@@ -64,6 +67,8 @@ server.post(`${process.env.SERVER_BASE_PATH}/getGJUserList20.php`, getUserListHa
 server.post(`${process.env.SERVER_BASE_PATH}/readGJFriendRequest20.php`, readFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/acceptGJFriendRequest20.php`, acceptFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/removeGJFriend20.php`, removeFriendHandler)
+
+server.post(`${process.env.SERVER_BASE_PATH}/uploadGJLevel21.php`, uploadLevelHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessageHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)
