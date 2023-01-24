@@ -8,7 +8,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.page) rep.send(-1)
+    if(!req.body.accountID || !req.body.page) return rep.send(-1)
 
     const offset = req.body.page * 10
 

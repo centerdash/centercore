@@ -26,7 +26,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.stars || !req.body.diamonds || !req.body.coins || !req.body.userCoins || !req.body.icon || !req.body.iconType || !req.body.special || !req.body.color1 || !req.body.color2 || !req.body.accIcon || !req.body.accShip || !req.body.accBall || !req.body.accBird || !req.body.accDart || !req.body.accRobot || !req.body.accGlow || !req.body.accSpider || !req.body.accExplosion) rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.stars || !req.body.diamonds || !req.body.coins || !req.body.userCoins || !req.body.icon || !req.body.iconType || !req.body.special || !req.body.color1 || !req.body.color2 || !req.body.accIcon || !req.body.accShip || !req.body.accBall || !req.body.accBird || !req.body.accDart || !req.body.accRobot || !req.body.accGlow || !req.body.accSpider || !req.body.accExplosion) return rep.send(-1)
 
     verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 

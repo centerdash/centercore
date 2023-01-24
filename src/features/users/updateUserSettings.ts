@@ -14,7 +14,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp) rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp) return rep.send(-1)
 
     if(!/^[a-zA-Z0-9_-]*$/g.test(req.body.yt) || !/^[a-zA-Z0-9_-]*$/g.test(req.body.twitch) || !/^[a-zA-Z0-9_-]*$/g.test(req.body.twitter)) {
         rep.send(-1)

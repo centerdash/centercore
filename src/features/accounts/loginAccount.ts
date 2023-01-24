@@ -8,7 +8,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.userName || !req.body.password) rep.send(-1)
+    if(!req.body.userName || !req.body.password) return rep.send(-1)
 
     db.query("SELECT password, accountID FROM accounts WHERE userName = ?", [req.body.userName], (err, q) => {
         if(q.length == 0) return rep.send(-1)

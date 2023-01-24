@@ -10,7 +10,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.userName || !req.body.email || !req.body.password) rep.send(-1)
+    if(!req.body.userName || !req.body.email || !req.body.password) return rep.send(-1)
 
     if(req.body.userName.length > 20) return rep.send(-4)
     if(!/^[a-zA-Z0-9]*$/g.test(req.body.userName)) return rep.send(-4)

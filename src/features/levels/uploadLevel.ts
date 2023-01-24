@@ -28,15 +28,15 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.userName || !req.body.levelID || !req.body.levelName || !req.body.levelDesc || !req.body.levelVersion || !req.body.levelLength || !req.body.audioTrack || !req.body.password || !req.body.original || !req.body.twoPlayer || !req.body.songID || !req.body.objects || !req.body.coins || !req.body.requestedStars || !req.body.unlisted || !req.body.ldm || !req.body.extraString || !req.body.levelString || !req.body.levelInfo) rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.userName || !req.body.levelID || !req.body.levelName || !req.body.levelDesc || !req.body.levelVersion || !req.body.levelLength || !req.body.audioTrack || !req.body.password || !req.body.original || !req.body.twoPlayer || !req.body.songID || !req.body.objects || !req.body.coins || !req.body.requestedStars || !req.body.unlisted || !req.body.ldm || !req.body.extraString || !req.body.levelString || !req.body.levelInfo) return rep.send(-1)
 
     verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
     if(req.body.levelID == 0) {
-        db.query("SELECT timestamp FROM levels WHERE accountID = ? ORDER BY timestamp DESC LIMIT 1", [req.body.accountID], (err, q1) => {
+        db.query("SELECT timestamp FROM levels WHERE authorID = ? ORDER BY timestamp DESC LIMIT 1", [req.body.accountID], (err, q1) => {
             if(q1.length > 0) {
                 let diff = getTimestamp() - q1[0].timestamp
-                if(diff < 60) {
+                if(diff < 30) {
                     rep.send(-1)
                     return
                 }
@@ -63,7 +63,7 @@ export default function handler(req: FastifyRequest<{ Body: Body }>, rep: Fastif
                 req.body.ldm
             ], (err, q) => {
                 try {
-                    writeFileSync(__dirname + '/../../', req.body.levelString)
+                    writeFileSync(`${__dirname}/../../../data/levels/${q.insertId}`, req.body.levelString)
                 } catch(err) {
                     rep.send(-1)
                     return

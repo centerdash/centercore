@@ -11,7 +11,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.itemID || !req.body.type) rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.itemID || !req.body.type) return rep.send(-1)
 
     if(!req.body.like) req.body.like = 1
 

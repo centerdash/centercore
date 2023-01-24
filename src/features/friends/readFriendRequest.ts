@@ -9,7 +9,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.requestID) rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.requestID) return rep.send(-1)
 
     verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 

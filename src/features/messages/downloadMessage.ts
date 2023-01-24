@@ -10,7 +10,7 @@ type Body = {
 }
 
 export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.messageID) rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.messageID) return rep.send(-1)
 
     if(!req.body.isSender) req.body.isSender = 0
 
