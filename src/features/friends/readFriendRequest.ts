@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { verifyGJPOrExit, timeDifference } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { verifyGJP } from '../../lib/tools'
 
 type Body = {
     accountID: number,
@@ -9,11 +9,11 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.requestID) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.requestID) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-    db.query("UPDATE friend_reqs SET isNew = 0 WHERE freqID = ? LIMIT 1", [req.body.requestID], (err, q) => {
-        rep.send(1)
-    })
+    await query("UPDATE friend_reqs SET isNew = 0 WHERE freqID = ? LIMIT 1", [req.body.requestID])
+
+    return 1
 }

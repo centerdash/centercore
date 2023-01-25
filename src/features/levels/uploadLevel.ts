@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { verifyGJPOrExit, getTimestamp } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { verifyGJP, getTimestamp } from '../../lib/tools'
 import { writeFileSync } from 'fs'
 
 type Body = {
@@ -28,79 +28,75 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.userName || !req.body.levelID || !req.body.levelName || !req.body.levelDesc || !req.body.levelVersion || !req.body.levelLength || !req.body.audioTrack || !req.body.password || !req.body.original || !req.body.twoPlayer || !req.body.songID || !req.body.objects || !req.body.coins || !req.body.requestedStars || !req.body.unlisted || !req.body.ldm || !req.body.extraString || !req.body.levelString || !req.body.levelInfo) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.userName || !req.body.levelID || !req.body.levelName || !req.body.levelDesc || !req.body.levelVersion || !req.body.levelLength || !req.body.audioTrack || !req.body.password || !req.body.original || !req.body.twoPlayer || !req.body.songID || !req.body.objects || !req.body.coins || !req.body.requestedStars || !req.body.unlisted || !req.body.ldm || !req.body.extraString || !req.body.levelString || !req.body.levelInfo) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
     if(req.body.levelID == 0) {
-        db.query("SELECT timestamp FROM levels WHERE authorID = ? ORDER BY timestamp DESC LIMIT 1", [req.body.accountID], (err, q1) => {
-            if(q1.length > 0) {
-                let diff = getTimestamp() - q1[0].timestamp
-                if(diff < 30) {
-                    rep.send(-1)
-                    return
-                }
-            }
-
-            db.query("INSERT INTO levels (userName, authorID, timestamp, name, description, length, song, customSong, objects, password, original, twoPlayer, coins, requestedStars, unlisted, extraString, levelInfo, ldm) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-                req.body.userName,
-                req.body.accountID,
-                getTimestamp(),
-                req.body.levelName,
-                req.body.levelDesc,
-                req.body.levelLength,
-                req.body.audioTrack,
-                req.body.songID,
-                req.body.objects,
-                req.body.password,
-                req.body.original,
-                req.body.twoPlayer,
-                req.body.coins,
-                req.body.requestedStars,
-                req.body.unlisted,
-                req.body.extraString,
-                req.body.levelInfo,
-                req.body.ldm
-            ], (err, q) => {
-                try {
-                    writeFileSync(`${__dirname}/../../../data/levels/${q.insertId}`, req.body.levelString)
-                } catch(err) {
-                    rep.send(-1)
-                    return
-                }
-                rep.send(q.insertId)
-            })
-        })
-    } else {
-        db.query("SELECT count(*), levelID FROM levels WHERE levelID = ? AND authorID = ?", [req.body.levelID, req.body.accountID], (err, q) => {
-            if(q.length == 0) {
+        // rate limit
+        const q1 = await query("SELECT timestamp FROM levels WHERE authorID = ? ORDER BY timestamp DESC LIMIT 1", [req.body.accountID])
+        if(q1.length > 0) {
+            let diff = getTimestamp() - q1[0].timestamp
+            if(diff < 30) {
                 rep.send(-1)
                 return
             }
+        }
 
-            db.query("UPDATE levels SET userName=?, authorID=?, updateTimestamp=?, name=?, description=?, length=?, song=?, customSong=?, objects=?, password=?, original=?, twoPlayer=?, coins=?, requestedStars=?, unlisted=?, extraString=?, levelInfo=?, ldm=? WHERE levelID = ? LIMIT 1", [
-                req.body.userName,
-                req.body.accountID,
-                getTimestamp(),
-                req.body.levelName,
-                req.body.levelDesc,
-                req.body.levelLength,
-                req.body.audioTrack,
-                req.body.songID,
-                req.body.objects,
-                req.body.password,
-                req.body.original,
-                req.body.twoPlayer,
-                req.body.coins,
-                req.body.requestedStars,
-                req.body.unlisted,
-                req.body.extraString,
-                req.body.levelInfo,
-                req.body.ldm,
-                q[0].levelID
-            ], (err, q1) => {
-                rep.send(q[0].levelID)
-            })
-        })
+        const q = await query("INSERT INTO levels (userName, authorID, timestamp, name, description, length, song, customSong, objects, password, original, twoPlayer, coins, requestedStars, unlisted, extraString, levelInfo, ldm) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
+            req.body.userName,
+            req.body.accountID,
+            getTimestamp(),
+            req.body.levelName,
+            req.body.levelDesc,
+            req.body.levelLength,
+            req.body.audioTrack,
+            req.body.songID,
+            req.body.objects,
+            req.body.password,
+            req.body.original,
+            req.body.twoPlayer,
+            req.body.coins,
+            req.body.requestedStars,
+            req.body.unlisted,
+            req.body.extraString,
+            req.body.levelInfo,
+            req.body.ldm
+        ])
+
+        try {
+            writeFileSync(`${__dirname}/../../../data/levels/${q.insertId}`, req.body.levelString)
+        } catch(err) {
+            return -1
+        }
+
+        return q.insertId
+    } else {
+        const q = await query("SELECT count(*), levelID FROM levels WHERE levelID = ? AND authorID = ?", [req.body.levelID, req.body.accountID])
+        if(q.length == 0) return -1
+
+        await query("UPDATE levels SET userName=?, authorID=?, updateTimestamp=?, name=?, description=?, length=?, song=?, customSong=?, objects=?, password=?, original=?, twoPlayer=?, coins=?, requestedStars=?, unlisted=?, extraString=?, levelInfo=?, ldm=? WHERE levelID = ? LIMIT 1", [
+            req.body.userName,
+            req.body.accountID,
+            getTimestamp(),
+            req.body.levelName,
+            req.body.levelDesc,
+            req.body.levelLength,
+            req.body.audioTrack,
+            req.body.songID,
+            req.body.objects,
+            req.body.password,
+            req.body.original,
+            req.body.twoPlayer,
+            req.body.coins,
+            req.body.requestedStars,
+            req.body.unlisted,
+            req.body.extraString,
+            req.body.levelInfo,
+            req.body.ldm,
+            q[0].levelID
+        ])
+        
+        return q[0].levelID
     }
 }

@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { verifyGJPOrExit } from '../../lib/tools'
-import { db } from '../../lib/db'
+import { verifyGJP } from '../../lib/tools'
+import { query } from '../../lib/db'
 
 type Body = {
     accountID: number,
@@ -10,20 +10,20 @@ type Body = {
     like: number
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.itemID || !req.body.type) return rep.send(-1)
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+    if(!req.body.accountID || !req.body.gjp || !req.body.itemID || !req.body.type) return -1
+
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
     if(!req.body.like) req.body.like = 1
 
     if(req.body.type == 3) {
         if(req.body.like == 1) {
-            db.query("UPDATE acc_comments SET likes = likes + 1 WHERE accCommentID = ? LIMIT 1", [req.body.itemID], (err, q) => {
-                rep.send(1)
-            })
+            await query("UPDATE acc_comments SET likes = likes + 1 WHERE accCommentID = ? LIMIT 1", [req.body.itemID])
+            return 1
         } else {
-            db.query("UPDATE acc_comments SET likes = likes - 1 WHERE accCommentID = ? LIMIT 1", [req.body.itemID], (err, q) => {
-                rep.send(1)
-            })
+            await query("UPDATE acc_comments SET likes = likes - 1 WHERE accCommentID = ? LIMIT 1", [req.body.itemID])
+            return 1
         }
     }
 }

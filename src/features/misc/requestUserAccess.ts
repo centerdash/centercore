@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { verifyGJPOrExit } from '../../lib/tools'
-import { db } from '../../lib/db'
+import { verifyGJP } from '../../lib/tools'
+import { query } from '../../lib/db'
 
 type Body = {
     accountID: number,
@@ -8,19 +8,19 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-    db.query("SELECT modType FROM accounts WHERE accountID = ?", [req.body.accountID], (err, q) => {
-        if(q[0].modType == 0) {
-            rep.send(-1)
-        } else if(q[0].modType == 1) {
-            rep.send(1)
-        } else if(q[0].modType == 2) {
-            rep.send(2)
-        } else {
-            rep.send(-1)
-        }
-    })
+    const q = await query("SELECT modType FROM accounts WHERE accountID = ?", [req.body.accountID])
+
+    if(q[0].modType == 0) {
+        rep.send(-1)
+    } else if(q[0].modType == 1) {
+        rep.send(1)
+    } else if(q[0].modType == 2) {
+        rep.send(2)
+    } else {
+        rep.send(-1)
+    }
 }

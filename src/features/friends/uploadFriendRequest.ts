@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { verifyGJPOrExit, getTimestamp } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { verifyGJP, getTimestamp } from '../../lib/tools'
 
 type Body = {
     accountID: number,
@@ -10,13 +10,13 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.toAccountID) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.toAccountID) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
     if(!req.body.comment) req.body.comment = ''
 
-    db.query("INSERT INTO friend_reqs (fromID, toID, message, timestamp) VALUES (?, ?, ?, ?)", [req.body.accountID, req.body.toAccountID, req.body.comment, getTimestamp()], (err, q) => {
-        rep.send(1)
-    })
+    await query("INSERT INTO friend_reqs (fromID, toID, message, timestamp) VALUES (?, ?, ?, ?)", [req.body.accountID, req.body.toAccountID, req.body.comment, getTimestamp()])
+
+    return 1
 }

@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { getTimestamp, verifyGJPOrExit } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { getTimestamp, verifyGJP } from '../../lib/tools'
 import { createHash } from 'crypto'
 
 type Body = {
@@ -26,7 +26,7 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.type || !req.body.diff || !req.body.len || !req.body.page || !req.body.uncompleted || !req.body.onlyCompleted || !req.body.featured || !req.body.original || !req.body.twoPlayer || !req.body.coins || !req.body.epic) return rep.send(-1)
+    if(!req.body.type || !req.body.diff || !req.body.len || !req.body.page || !req.body.uncompleted || !req.body.onlyCompleted || !req.body.featured || !req.body.original || !req.body.twoPlayer || !req.body.coins || !req.body.epic) return -1
     
     const offset = req.body.page * 10
 
@@ -128,12 +128,12 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             break
         
         case '5': // user levels
-            await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
-            
+            if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
+
             sql = "SELECT * FROM levels WHERE unlisted = 0 AND authorID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
-            props = [req.body.accountID, offset]
+            props = [req.body.str, offset]
             countsql = "SELECT count(*) FROM levels WHERE unlisted = 0 AND authorID = ?"
-            countprops = [req.body.accountID]
+            countprops = [req.body.str]
             break
 
         case '6': // featured
@@ -172,27 +172,25 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             break
 
         default:
-            rep.send(-1)
-            break
+            return -1
     }
 
-    db.query(sql, props, (err, q) => {
-        console.log(err)
-        let levels = ''
-        let users = ''
-        let hash = ''
+    const q = await query(sql, props)
 
-        q.forEach((lvl: any) => {
-            levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-            users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-            hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-        })
+    let levels = ''
+    let users = ''
+    let hash = ''
 
-        levels = levels.slice(0, -1)
-        users = levels.slice(0, -1)
-
-        db.query(countsql, countprops, (err, q1) => {
-            rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-        })
+    q.forEach((lvl: any) => {
+        levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
+        users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
+        hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
     })
+
+    levels = levels.slice(0, -1)
+    users = levels.slice(0, -1)
+
+    const count = (await query(countsql, countprops))[0]['count(*)']
+
+    return `${levels}#${users}##${count}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`
 }

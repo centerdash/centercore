@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { verifyGJPOrExit } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { verifyGJP } from '../../lib/tools'
 
 type Body = {
     accountID: number,
@@ -10,13 +10,12 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.levelID || !req.body.levelDesc) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.levelID || !req.body.levelDesc) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-    db.query("UPDATE levels SET description = ? WHERE levelID = ? AND authorID = ?", [req.body.levelID, req.body.accountID], (err, q) => {
-        console.log(q)
-        if(q.affectedRows > 0) rep.send(1)
-        else rep.send(-1)
-    })
+    const q = await query("UPDATE levels SET description = ? WHERE levelID = ? AND authorID = ?", [req.body.levelID, req.body.accountID])
+
+    if(q.affectedRows > 0) return 1
+    else return -1
 }

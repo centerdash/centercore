@@ -1,6 +1,9 @@
 import fastify from 'fastify'
 import formbody from '@fastify/formbody'
 import dotenv from 'dotenv'
+import { testConnection } from './lib/db'
+
+testConnection()
 dotenv.config()
 
 // accounts

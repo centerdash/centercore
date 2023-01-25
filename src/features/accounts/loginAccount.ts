@@ -1,19 +1,19 @@
-import { FastifyRequest, FastifyReply } from 'fastify'
+import { FastifyRequest } from 'fastify'
 import { compareSync } from 'bcrypt'
-import { db } from '../../lib/db'
+import { query } from '../../lib/db'
 
 type Body = {
     userName: string,
     password: string
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.userName || !req.body.password) return rep.send(-1)
+export default async function handler(req: FastifyRequest<{ Body: Body }>) {
+    if(!req.body.userName || !req.body.password) return -1
 
-    db.query("SELECT password, accountID FROM accounts WHERE userName = ?", [req.body.userName], (err, q) => {
-        if(q.length == 0) return rep.send(-1)
+    const q = await query("SELECT password, accountID FROM accounts WHERE userName = ?", [req.body.userName])
 
-        if(compareSync(req.body.password, q[0].password)) return rep.send(`${q[0].accountID},${q[0].accountID}`)
-        else return rep.send(-1)
-    })
+    if(q.length == 0) return -1
+
+    if(compareSync(req.body.password, q[0].password)) return `${q[0].accountID},${q[0].accountID}`
+    else return -1
 }

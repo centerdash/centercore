@@ -1,6 +1,6 @@
 import { FastifyReply } from 'fastify'
 import { compareSync } from 'bcrypt'
-import { db } from './db'
+import { query } from './db'
 import XOR from './XOR'
 
 /**
@@ -77,16 +77,15 @@ export function decodeGJP(gjp: string) {
 }
 
 /**
- * verify GJP of user and return -1 to FastifyReply if GJP was wrong
- * @returns true or -1 to FastifyReply
+ * verify GJP of user
+ * @returns true or false
  */
-export async function verifyGJPOrExit(accountID: number, gjp: string, rep: FastifyReply) {
-    return new Promise((resolve, reject) => {
-        db.query("SELECT password FROM accounts WHERE accountID = ?", [accountID], (err, q) => {
-            if(q.length == 0) return rep.send(-1)
-    
-            if(compareSync(decodeGJP(gjp), q[0].password)) return resolve(true)
-            else return rep.send(-1)
-        })
+export async function verifyGJP(accountID: number, gjp: string) {
+    return new Promise(async (resolve, reject) => {
+        const q = await query("SELECT password FROM accounts WHERE accountID = ?", [accountID])
+        if(q.length == 0) return resolve(false)
+
+        if(compareSync(decodeGJP(gjp), q[0].password)) return resolve(true)
+        else return resolve(false)
     })
 }

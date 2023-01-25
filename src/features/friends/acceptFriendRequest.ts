@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { verifyGJPOrExit, getTimestamp } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { verifyGJP, getTimestamp } from '../../lib/tools'
 
 type Body = {
     accountID: number,
@@ -10,13 +10,12 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.targetAccountID || !req.body.requestID) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.targetAccountID || !req.body.requestID) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-    db.query("DELETE FROM friend_reqs WHERE freqID = ? AND fromID = ? AND toID = ? LIMIT 1", [req.body.requestID, req.body.targetAccountID, req.body.accountID], (err, q) => {
-        db.query("INSERT INTO friends (user1, user2, timestamp) VALUES (?, ?, ?)", [req.body.targetAccountID, req.body.accountID, getTimestamp()], (err, q1) => {
-            rep.send(1)
-        })
-    })
+    await query("DELETE FROM friend_reqs WHERE freqID = ? AND fromID = ? AND toID = ? LIMIT 1", [req.body.requestID, req.body.targetAccountID, req.body.accountID])
+    await query("INSERT INTO friends (user1, user2, timestamp) VALUES (?, ?, ?)", [req.body.targetAccountID, req.body.accountID, getTimestamp()])
+
+    return 1
 }

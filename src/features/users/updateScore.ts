@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { verifyGJPOrExit } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { verifyGJP } from '../../lib/tools'
 
 type Body = {
     accountID: number,
@@ -26,11 +26,11 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.stars || !req.body.diamonds || !req.body.coins || !req.body.userCoins || !req.body.icon || !req.body.iconType || !req.body.special || !req.body.color1 || !req.body.color2 || !req.body.accIcon || !req.body.accShip || !req.body.accBall || !req.body.accBird || !req.body.accDart || !req.body.accRobot || !req.body.accGlow || !req.body.accSpider || !req.body.accExplosion) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.stars || !req.body.diamonds || !req.body.coins || !req.body.userCoins || !req.body.icon || !req.body.iconType || !req.body.special || !req.body.color1 || !req.body.color2 || !req.body.accIcon || !req.body.accShip || !req.body.accBall || !req.body.accBird || !req.body.accDart || !req.body.accRobot || !req.body.accGlow || !req.body.accSpider || !req.body.accExplosion) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-    db.query("UPDATE accounts SET stars=?, diamonds=?, coins=?, silverCoins=?, icon=?, iconType=?, special=?, color1=?, color2=?, cube=?, ship=?, ball=?, ufo=?, wave=?, robot=?, glow=?, spider=?, explosion=? WHERE accountID = ?", [
+    await query("UPDATE accounts SET stars=?, diamonds=?, coins=?, silverCoins=?, icon=?, iconType=?, special=?, color1=?, color2=?, cube=?, ship=?, ball=?, ufo=?, wave=?, robot=?, glow=?, spider=?, explosion=? WHERE accountID = ?", [
         req.body.stars,
         req.body.diamonds,
         req.body.coins,
@@ -50,9 +50,9 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
         req.body.accSpider,
         req.body.accExplosion,
         req.body.accountID
-    ], (err, q) => {
-        db.query("SELECT accountID FROM accounts WHERE accountID = ?", [req.body.accountID], (err, q1) => {
-            rep.send(q1[0].accountID)
-        })
-    })
+    ])
+
+    const q = await query("SELECT accountID FROM accounts WHERE accountID = ?", [req.body.accountID])
+
+    return q[0].accountID
 }

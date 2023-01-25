@@ -1,19 +1,18 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { verifyGJPOrExit } from '../../lib/tools'
-import { db } from '../../lib/db'
+import { verifyGJP } from '../../lib/tools'
+import { query } from '../../lib/db'
 
 type Body = {
     accountID: number,
     gjp: string,
-    commentID: number
+    commentID: string
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.commentID) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.commentID) return -1
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-    db.query("DELETE FROM acc_comments WHERE accCommentID = ? LIMIT 1", [req.body.commentID], (err, q) => {
-        rep.send(1)
-    })
+    await query("DELETE FROM acc_comments WHERE accCommentID = ? LIMIT 1", [req.body.commentID])
+    return 1
 }

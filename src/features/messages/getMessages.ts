@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { db } from '../../lib/db'
-import { timeDifference, verifyGJPOrExit } from '../../lib/tools'
+import { query } from '../../lib/db'
+import { timeDifference, verifyGJP } from '../../lib/tools'
 
 type Body = {
     accountID: number,
@@ -10,51 +10,43 @@ type Body = {
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.page) return rep.send(-1)
+    if(!req.body.accountID || !req.body.gjp || !req.body.page) return -1
 
     if(!req.body.getSent) req.body.getSent = 0
 
-    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
     const offset = req.body.page * 10
 
     if(req.body.getSent == 0) {
-        db.query("SELECT *, messages.timestamp AS messageTimestamp FROM messages LEFT JOIN accounts ON messages.fromID = accounts.accountID WHERE toID = ? ORDER BY messages.timestamp DESC LIMIT 10 OFFSET ?", [req.body.accountID, offset], (err, q) => {
-            if(q.length == 0) {
-                rep.send(-2)
-                return
-            }
+        const q = await query("SELECT *, messages.timestamp AS messageTimestamp FROM messages LEFT JOIN accounts ON messages.fromID = accounts.accountID WHERE toID = ? ORDER BY messages.timestamp DESC LIMIT 10 OFFSET ?", [req.body.accountID, offset])
+        if(q.length == 0) return -2
 
-            let out = ''
+        let out = ''
 
-            q.forEach((msg: any) => {
-                out += `1:${msg.messageID}:2:${msg.fromID}:3:${msg.fromID}:4:${msg.subject}:6:${msg.userName}:7:${timeDifference(msg.messageTimestamp)}:8:${msg.isNew}:9:0|`
-            })
-
-            out = out.slice(0, -1)
-
-            db.query("SELECT count(*) FROM messages WHERE toID = ?", [req.body.accountID], (err, q1) => {
-                rep.send(`${out}#${q1[0]['count(*)']}:${offset}:10`)
-            })
+        q.forEach((msg: any) => {
+            out += `1:${msg.messageID}:2:${msg.fromID}:3:${msg.fromID}:4:${msg.subject}:6:${msg.userName}:7:${timeDifference(msg.messageTimestamp)}:8:${msg.isNew}:9:0|`
         })
+
+        out = out.slice(0, -1)
+
+        const count = (await query("SELECT count(*) FROM messages WHERE toID = ?", [req.body.accountID]))[0]['count(*)']
+
+        rep.send(`${out}#${count}:${offset}:10`)
     } else {
-        db.query("SELECT *, messages.timestamp AS messageTimestamp FROM messages LEFT JOIN accounts ON messages.fromID = accounts.accountID WHERE fromID = ? ORDER BY messages.timestamp DESC LIMIT 10 OFFSET ?", [req.body.accountID, offset], (err, q) => {
-            if(q.length == 0) {
-                rep.send(-2)
-                return
-            }
+        const q = await query("SELECT *, messages.timestamp AS messageTimestamp FROM messages LEFT JOIN accounts ON messages.fromID = accounts.accountID WHERE fromID = ? ORDER BY messages.timestamp DESC LIMIT 10 OFFSET ?", [req.body.accountID, offset])
+        if(q.length == 0) return -2
 
-            let out = ''
+        let out = ''
 
-            q.forEach((msg: any) => {
-                out += `1:${msg.messageID}:2:${msg.fromID}:3:${msg.fromID}:4:${msg.subject}:6:${msg.userName}:7:${timeDifference(msg.messageTimestamp)}:8:${msg.isNew}:9:0|`
-            })
-
-            out = out.slice(0, -1)
-
-            db.query("SELECT count(*) FROM messages WHERE fromID = ?", [req.body.accountID], (err, q1) => {
-                rep.send(`${out}#${q1[0]['count(*)']}:${offset}:10`)
-            })
+        q.forEach((msg: any) => {
+            out += `1:${msg.messageID}:2:${msg.fromID}:3:${msg.fromID}:4:${msg.subject}:6:${msg.userName}:7:${timeDifference(msg.messageTimestamp)}:8:${msg.isNew}:9:0|`
         })
+
+        out = out.slice(0, -1)
+
+        const count = (await query("SELECT count(*) FROM messages WHERE fromID = ?", [req.body.accountID]))[0]['count(*)']
+        
+        rep.send(`${out}#${count}:${offset}:10`)
     }
 }
