@@ -7,10 +7,10 @@ type Body = {
     gjp: string
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp) return rep.send(-1)
 
-    verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
     db.query("SELECT modType FROM accounts WHERE accountID = ?", [req.body.accountID], (err, q) => {
         if(q[0].modType == 0) {

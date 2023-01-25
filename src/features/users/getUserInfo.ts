@@ -8,11 +8,11 @@ type Body = {
     gjp: string
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.targetAccountID) return rep.send(-1)
 
     if(req.body.accountID && req.body.gjp) {
-        verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+        await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
     }
 
     db.query("SELECT count(*) FROM blocks WHERE fromID = ? AND toID = ?", [req.body.accountID, req.body.targetAccountID], (err, q8) => {

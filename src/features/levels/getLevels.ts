@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { db } from '../../lib/db'
-import { getTimestamp } from '../../lib/tools'
+import { getTimestamp, verifyGJPOrExit } from '../../lib/tools'
 import { createHash } from 'crypto'
 
 type Body = {
@@ -20,10 +20,12 @@ type Body = {
     customSong: number,
     star: number,
     noStar: number,
-    demonFilter: string
+    demonFilter: string,
+    accountID: number,
+    gjp: string
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.type || !req.body.diff || !req.body.len || !req.body.page || !req.body.uncompleted || !req.body.onlyCompleted || !req.body.featured || !req.body.original || !req.body.twoPlayer || !req.body.coins || !req.body.epic) return rep.send(-1)
     
     const offset = req.body.page * 10
@@ -82,199 +84,115 @@ export default function handler(req: FastifyRequest<{ Body: Body }>, rep: Fastif
         }
     }
 
+    let sql = ""
+    let props: any[] = []
+    let countsql = ""
+    let countprops: any[] = []
+
     switch(req.body.type) {
         case '0': // search without filters
-            db.query("SELECT * FROM levels WHERE name LIKE CONCAT('%', ?, '%') AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") LIMIT 10 OFFSET ?", [req.body.str, offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
-    
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-    
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-    
-                db.query("SELECT count(*) FROM levels WHERE name LIKE CONCAT('%', ?, '%') AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")", [req.body.str], (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE name LIKE CONCAT('%', ?, '%') AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") LIMIT 10 OFFSET ?"
+            props = [req.body.str, offset]
+            countsql = "SELECT count(*) FROM levels WHERE name LIKE CONCAT('%', ?, '%') AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+            countprops = [req.body.str]
             break
 
         case '1': // most downloaded
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY downloads DESC LIMIT 10 OFFSET ?", [offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
-    
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-    
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-    
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")", (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY downloads DESC LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+            countprops = []
             break
         
         case '2': // most liked & filter search
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY likes DESC LIMIT 10 OFFSET ?", [offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
-
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-    
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-    
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")", (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY likes DESC LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+            countprops = []
             break
 
         case '3': // trending
             const timestamp = getTimestamp() - (7 * 24 * 60 * 60)
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND timestamp > ? ORDER BY likes DESC LIMIT 10 OFFSET ?", [timestamp, offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
 
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND timestamp > ?", [timestamp], (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND timestamp > ? ORDER BY likes DESC LIMIT 10 OFFSET ?"
+            props = [timestamp, offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND timestamp > ?"
+            countprops = [timestamp]
             break
 
         case '4': // recent
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY timestamp DESC LIMIT 10 OFFSET ?", [offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
-
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-    
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-    
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")", (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+            countprops = []
+            break
+        
+        case '5': // user levels
+            await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+            
+            sql = "SELECT * FROM levels WHERE unlisted = 0 AND authorID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
+            props = [req.body.accountID, offset]
+            countsql = "SELECT count(*) FROM levels WHERE unlisted = 0 AND authorID = ?"
+            countprops = [req.body.accountID]
             break
 
         case '6': // featured
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND featured = 1 ORDER BY rateTimestamp DESC LIMIT 10 OFFSET ?", [offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
-
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND featured = 1 ORDER BY rateTimestamp DESC", (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND featured = 1 ORDER BY rateTimestamp DESC LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND featured = 1"
+            countprops = []
             break
         
         case '7': // magic
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND objects > 9999 ORDER BY likes DESC LIMIT 10 OFFSET ?", [offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND objects > 9999 ORDER BY likes DESC LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND objects > 9999"
+            countprops = []
+            break
 
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-    
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-    
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND objects > 9999", (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+        case '11': // map pack
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0 ORDER BY rateTimestamp DESC, timestamp LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0"
+            countprops = []
             break
 
         case '11': // awarded
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0 ORDER BY rateTimestamp DESC, timestamp LIMIT 10 OFFSET ?", [offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
-
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-    
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-    
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND objects > 9999", (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0 ORDER BY rateTimestamp DESC, timestamp LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0"
+            countprops = []
             break
 
         case '16': // hall of fame
-            db.query("SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND epic = 1 ORDER BY rateTimestamp DESC LIMIT 10 OFFSET ?", [offset], (err, q) => {
-                let levels = ''
-                let users = ''
-                let hash = ''
-
-                q.forEach((lvl: any) => {
-                    levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
-                    users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
-                    hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-                })
-
-                levels = levels.slice(0, -1)
-                users = levels.slice(0, -1)
-
-                db.query("SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND epic = 1 ORDER BY rateTimestamp DESC", (err, q1) => {
-                    rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
-                })
-            })
+            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND epic = 1 ORDER BY rateTimestamp DESC LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND epic = 1"
+            countprops = []
             break
 
         default:
             rep.send(-1)
             break
     }
+
+    db.query(sql, props, (err, q) => {
+        console.log(err)
+        let levels = ''
+        let users = ''
+        let hash = ''
+
+        q.forEach((lvl: any) => {
+            levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
+            users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
+            hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
+        })
+
+        levels = levels.slice(0, -1)
+        users = levels.slice(0, -1)
+
+        db.query(countsql, countprops, (err, q1) => {
+            rep.send(`${levels}#${users}##${q1[0]['count(*)']}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`)
+        })
+    })
 }

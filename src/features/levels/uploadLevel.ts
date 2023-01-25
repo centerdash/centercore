@@ -27,10 +27,10 @@ type Body = {
     levelInfo: string
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp || !req.body.userName || !req.body.levelID || !req.body.levelName || !req.body.levelDesc || !req.body.levelVersion || !req.body.levelLength || !req.body.audioTrack || !req.body.password || !req.body.original || !req.body.twoPlayer || !req.body.songID || !req.body.objects || !req.body.coins || !req.body.requestedStars || !req.body.unlisted || !req.body.ldm || !req.body.extraString || !req.body.levelString || !req.body.levelInfo) return rep.send(-1)
 
-    verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
     if(req.body.levelID == 0) {
         db.query("SELECT timestamp FROM levels WHERE authorID = ? ORDER BY timestamp DESC LIMIT 1", [req.body.accountID], (err, q1) => {

@@ -9,10 +9,10 @@ type Body = {
     levelDesc: string
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp || !req.body.levelID || !req.body.levelDesc) return rep.send(-1)
 
-    verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
     db.query("UPDATE levels SET description = ? WHERE levelID = ? AND authorID = ?", [req.body.levelID, req.body.accountID], (err, q) => {
         console.log(q)

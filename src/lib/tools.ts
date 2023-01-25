@@ -80,7 +80,7 @@ export function decodeGJP(gjp: string) {
  * verify GJP of user and return -1 to FastifyReply if GJP was wrong
  * @returns true or -1 to FastifyReply
  */
-export function verifyGJPOrExit(accountID: number, gjp: string, rep: FastifyReply) {
+export async function verifyGJPOrExit(accountID: number, gjp: string, rep: FastifyReply) {
     return new Promise((resolve, reject) => {
         db.query("SELECT password FROM accounts WHERE accountID = ?", [accountID], (err, q) => {
             if(q.length == 0) return rep.send(-1)

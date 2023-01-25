@@ -9,12 +9,12 @@ type Body = {
     isSender: number
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp || !req.body.messageID) return rep.send(-1)
 
     if(!req.body.isSender) req.body.isSender = 0
 
-    verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
     db.query("SELECT * FROM messages WHERE messageID = ? AND (fromID = ? OR toID = ?)", [req.body.messageID, req.body.accountID, req.body.accountID], (err, q) => {
         if(q.length == 0) {

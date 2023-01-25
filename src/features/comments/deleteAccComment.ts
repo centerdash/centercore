@@ -8,10 +8,10 @@ type Body = {
     commentID: number
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp || !req.body.commentID) return rep.send(-1)
 
-    verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
     db.query("DELETE FROM acc_comments WHERE accCommentID = ? LIMIT 1", [req.body.commentID], (err, q) => {
         rep.send(1)

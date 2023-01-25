@@ -8,12 +8,12 @@ type Body = {
     type: number
 }
 
-export default function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp) return rep.send(-1)
 
     if(!req.body.type) req.body.type = 0
 
-    verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
+    await verifyGJPOrExit(req.body.accountID, req.body.gjp, rep)
 
     if(req.body.type == 0) {
         db.query("SELECT * FROM friends LEFT JOIN accounts ON (friends.user1 = accounts.accountID AND friends.user1 != ?) OR (friends.user2 = accounts.accountID AND friends.user2 != ?) WHERE user1 = ? OR user2 = ?", [req.body.accountID, req.body.accountID, req.body.accountID, req.body.accountID], (err, q) => {
