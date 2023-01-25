@@ -4,4 +4,6 @@ dist
 .env
 
 data/levels/*
+!data/levels/.git*
 data/accounts/*
+!data/accounts/.git*
