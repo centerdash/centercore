@@ -61,9 +61,12 @@ export function random(min: number, max: number) {
  */
 export function generateString(length: number = 10) {
     let result = ''
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-'
-    for(let i = 0; i < characters.length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length))
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'
+    const charactersLength = characters.length
+    let counter = 0
+    while(counter < length) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength))
+      counter += 1
     }
     return result
 }
