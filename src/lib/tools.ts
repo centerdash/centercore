@@ -80,7 +80,7 @@ export function decodeGJP(gjp: string) {
  * verify GJP of user
  * @returns true or false
  */
-export async function verifyGJP(accountID: number, gjp: string) {
+export async function verifyGJP(accountID: number | string, gjp: string) {
     return new Promise(async (resolve, reject) => {
         const q = await query("SELECT password FROM accounts WHERE accountID = ?", [accountID])
         if(q.length == 0) return resolve(false)

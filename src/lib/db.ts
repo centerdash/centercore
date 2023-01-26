@@ -9,12 +9,12 @@ export async function testConnection() {
             port: Number(process.env.MYSQL_PORT),
             user: process.env.MYSQL_USER,
             password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE,
+            database: process.env.MYSQL_DATABASE
         })
-        
+
         db.connect(err => {
             if(err) throw err
-            
+
             console.log('Connected to MySQL')
             resolve(true)
         })
@@ -30,7 +30,7 @@ export async function query(query: string, values: any[]): Promise<any> {
             port: Number(process.env.MYSQL_PORT),
             user: process.env.MYSQL_USER,
             password: process.env.MYSQL_PASSWORD,
-            database: process.env.MYSQL_DATABASE,
+            database: process.env.MYSQL_DATABASE
         })
         
         db.connect(err => {
@@ -38,8 +38,6 @@ export async function query(query: string, values: any[]): Promise<any> {
                 console.log(err)
                 reject(err)
             }
-            
-            console.log('Connected to MySQL')
         })
     
         db.query(query, values, (err, q) => {
