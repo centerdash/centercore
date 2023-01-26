@@ -37,6 +37,7 @@ import uploadLevelHandler from './features/levels/uploadLevel'
 import updateDescHandler from './features/levels/updateDesc'
 import getLevelsHandler from './features/levels/getLevels'
 import downloadLevelHandler from './features/levels/downloadLevel'
+import reportLevelHandler from './features/levels/reportLevel'
 
 // messages
 import uploadMessageHandler from './features/messages/uploadMessage'
@@ -78,6 +79,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/uploadGJLevel21.php`, uploadLevelHa
 server.post(`${process.env.SERVER_BASE_PATH}/updateGJDesc20.php`, updateDescHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJLevels21.php`, getLevelsHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/downloadGJLevel22.php`, downloadLevelHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/reportGJLevel.php`, reportLevelHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessageHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)

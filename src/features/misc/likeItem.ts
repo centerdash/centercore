@@ -17,7 +17,15 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     if(!req.body.like) req.body.like = 1
 
-    if(req.body.type == 3) {
+    if(req.body.type == 1) {
+        if(req.body.like == 1) {
+            await query("UPDATE levels SET likes = likes + 1 WHERE levelID = ? LIMIT 1", [req.body.itemID])
+            return 1
+        } else {
+            await query("UPDATE levels SET likes = likes - 1 WHERE levelID = ? LIMIT 1", [req.body.itemID])
+            return 1
+        }
+    } else if(req.body.type == 3) {
         if(req.body.like == 1) {
             await query("UPDATE acc_comments SET likes = likes + 1 WHERE accCommentID = ? LIMIT 1", [req.body.itemID])
             return 1
