@@ -24,7 +24,7 @@ export function timeDifference(previous: number) {
     }
 
     else if(elapsed < perDay ) {
-        return Math.round(elapsed/perHour ) + ' hours'
+        return Math.round(elapsed/perHour) + ' hours'
     }
 
     else if(elapsed < perMonth) {
@@ -36,7 +36,7 @@ export function timeDifference(previous: number) {
     }
 
     else {
-        return Math.round(elapsed/perYear ) + ' years'
+        return Math.round(elapsed/perYear) + ' years'
     }
 }
 
