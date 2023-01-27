@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -54,5 +55,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     const q = await query("SELECT accountID FROM accounts WHERE accountID = ?", [req.body.accountID])
 
+    Logger.event_update('Score updated')
     return q[0].accountID
 }

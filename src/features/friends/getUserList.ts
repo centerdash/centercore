@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -28,6 +29,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
         out = out.slice(0, -1)
 
+        Logger.event_get('Friend list fetched')
         return out
     } else {
         const q = await query("SELECT * FROM blocks LEFT JOIN accounts ON blocks.toID = accounts.accountID WHERE fromID = ?", [req.body.accountID])
@@ -41,6 +43,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
         out = out.slice(0, -1)
 
+        Logger.event_get('Block list fetched')
         return out
     }
 }

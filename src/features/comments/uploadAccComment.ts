@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP, getTimestamp } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -15,5 +16,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     const q = await query("INSERT INTO acc_comments (comment, accountID, timestamp) VALUES (?, ?, ?)", [req.body.comment, req.body.accountID, getTimestamp()])
 
+    Logger.event_create('Account comment uploaded')
     return q.insertId
 }

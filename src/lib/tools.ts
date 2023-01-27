@@ -92,3 +92,14 @@ export async function verifyGJP(accountID: number | string, gjp: string) {
         else return resolve(false)
     })
 }
+
+/**
+ * get moderator color for comments
+ * @returns color like 'r,g,b'
+ */
+export function getModCommentColor(modType: number) {
+    if(modType == 0) return '0,0,0'
+    if(modType == 1) return '52,250,160'
+    if(modType == 2) return '98,249,255'
+    else return '0,0,0'
+}

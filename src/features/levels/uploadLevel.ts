@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP, getTimestamp } from '../../lib/tools'
 import { writeFileSync } from 'fs'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: string,
@@ -30,6 +31,7 @@ type Body = {
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp || !req.body.userName || !req.body.levelID || !req.body.levelName || !req.body.levelVersion || !req.body.levelLength || !req.body.audioTrack || !req.body.password || !req.body.original || !req.body.twoPlayer || !req.body.songID || !req.body.objects || !req.body.coins || !req.body.unlisted || !req.body.ldm || !req.body.extraString || !req.body.levelString || !req.body.levelInfo) return -1
     
+    if(!/^[0-9]$/g.test(req.body.levelID)) return -1
     if(!req.body.levelDesc) req.body.levelDesc = ''
     if(!req.body.requestedStars) req.body.requestedStars = '0'
 
@@ -67,6 +69,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
         try {
             writeFileSync(`${__dirname}/../../../data/levels/${q.insertId}`, req.body.levelString)
         } catch(err) {
+            console.log(err)
             return -1
         }
 
@@ -97,6 +100,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             q[0].levelID
         ])
         
+        Logger.event_create('Level uploaded')
         return q[0].levelID
     }
 }

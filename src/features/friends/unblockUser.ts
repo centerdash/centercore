@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -15,5 +16,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     await query("DELETE FROM blocks WHERE fromID = ? AND toID = ?", [req.body.accountID, req.body.targetAccountID])
 
+    Logger.event_delete('User unblocked')
     return 1
 }

@@ -1,7 +1,8 @@
-import { FastifyRequest, FastifyReply } from 'fastify'
+import { FastifyRequest } from 'fastify'
 import { genSaltSync, hashSync } from 'bcrypt'
 import { query } from '../../lib/db'
 import { getTimestamp, generateString, random } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     userName: string,
@@ -29,5 +30,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>) {
 
     await query("INSERT INTO accounts (userName, email, password, timestamp, verifyCode, token) VALUES (?, ?, ?, ?, ?, ?)", [req.body.userName, req.body.email, hashSync(req.body.password, genSaltSync()), getTimestamp(), verifyCode, token])
     
+    Logger.event_create('Account registered')
     return 1
 }

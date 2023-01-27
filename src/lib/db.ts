@@ -1,4 +1,5 @@
 import { createConnection } from 'mysql'
+import Logger from './logger'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -15,7 +16,7 @@ export async function testConnection() {
         db.connect(err => {
             if(err) throw err
 
-            console.log('Connected to MySQL')
+            Logger.log('Connected to MySQL')
             resolve(true)
         })
 
@@ -23,7 +24,7 @@ export async function testConnection() {
     })
 }
 
-export async function query(query: string, values: any[]): Promise<any> {
+export async function query(query: string, values: any[] = []): Promise<any> {
     return new Promise((resolve, reject) => {
         const db = createConnection({
             host: process.env.MYSQL_HOST,

@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -18,9 +19,11 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     if(req.body.isSender == 1) {
         await query("DELETE FROM friend_reqs WHERE fromID = ? AND toID = ? LIMIT 1", [req.body.accountID, req.body.targetAccountID])
+        Logger.event_delete('Friend request deleted')
         return 1
     } else {
         await query("DELETE FROM friend_reqs WHERE fromID = ? AND toID = ? LIMIT 1", [req.body.targetAccountID, req.body.accountID])
+        Logger.event_delete('Friend request deleted')
         return 1
     }
 }

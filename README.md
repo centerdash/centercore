@@ -12,7 +12,7 @@ cp example.env .env # copy example settings
 ```
 edit .env for your server
 
-## Start
+## Build and start
 ```bash
 npm run build # (or "yarn build") build TS files
 npm run start # (or "yarn start") start builded server

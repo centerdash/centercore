@@ -1,6 +1,7 @@
 import { FastifyRequest } from 'fastify'
 import { compareSync } from 'bcrypt'
 import { query } from '../../lib/db'
+import Logger from '../../lib/logger'
 
 type Body = {
     userName: string,
@@ -14,6 +15,8 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>) {
 
     if(q.length == 0) return -1
 
-    if(compareSync(req.body.password, q[0].password)) return `${q[0].accountID},${q[0].accountID}`
-    else return -1
+    if(compareSync(req.body.password, q[0].password)) {
+        Logger.event('User logged in')
+        return `${q[0].accountID},${q[0].accountID}`
+    } else return -1
 }

@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { verifyGJP } from '../../lib/tools'
 import { query } from '../../lib/db'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -24,5 +25,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     await query("UPDATE accounts SET messageState = ?, friendsState = ?, commentHistoryState = ?, youtube = ?, twitch = ?, twitter = ? WHERE accountID = ?", [req.body.mS ? req.body.mS : 0, req.body.frS ? req.body.frS : 0, req.body.cS ? req.body.cS : 0, req.body.yt ? req.body.yt : null, req.body.twitter ? req.body.twitter : null, req.body.twitch ? req.body.twitch : null, req.body.accountID])
 
+    Logger.event_update('User settings updated')
     return 1
 }

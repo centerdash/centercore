@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP, timeDifference } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -46,6 +47,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
         
         const count = (await query("SELECT count(*) FROM friend_reqs WHERE fromID = ?", [req.body.accountID]))[0]['count(*)']
 
+        Logger.event_get('Friend requests fetched')
         return `${out}#${count}:${offset}:10`
     }
 }

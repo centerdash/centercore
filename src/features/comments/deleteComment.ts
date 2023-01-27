@@ -1,21 +1,21 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
-import { query } from '../../lib/db'
 import { verifyGJP } from '../../lib/tools'
+import { query } from '../../lib/db'
 import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
     gjp: string,
-    requestID: number
+    commentID: string
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.accountID || !req.body.gjp || !req.body.requestID) return -1
+    if(!req.body.accountID || !req.body.gjp || !req.body.commentID) return -1
 
     if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-    await query("UPDATE friend_reqs SET isNew = 0 WHERE freqID = ? LIMIT 1", [req.body.requestID])
-
-    Logger.event_update('Friend request read')
+    await query("DELETE FROM comments WHERE commentID = ? AND authorID = ? LIMIT 1", [req.body.commentID, req.body.accountID])
+    
+    Logger.event_delete('Comment deleted')
     return 1
 }

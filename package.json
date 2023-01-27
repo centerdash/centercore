@@ -15,6 +15,7 @@
   "dependencies": {
     "@fastify/formbody": "^7.4.0",
     "bcrypt": "^5.1.0",
+    "cli-color": "^2.0.3",
     "dotenv": "^16.0.3",
     "fastify": "^4.11.0",
     "mysql": "^2.18.1",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/cli-color": "^2.0.2",
     "@types/mysql": "^2.15.21",
     "@types/node": "^18.11.18",
     "@types/node-gzip": "^1.1.0",

@@ -2,13 +2,14 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { getTimestamp, verifyGJP } from '../../lib/tools'
 import { createHash } from 'crypto'
+import Logger from '../../lib/logger'
 
 type Body = {
     type: string,
     str: string,
     diff: string,
     len: string,
-    page: number,
+    page: string,
     uncompleted: number,
     onlyCompleted: number,
     featured: number,
@@ -21,14 +22,14 @@ type Body = {
     star: number,
     noStar: number,
     demonFilter: string,
-    accountID: number,
+    accountID: string,
     gjp: string
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.type || !req.body.diff || !req.body.len || !req.body.page || !req.body.uncompleted || !req.body.onlyCompleted || !req.body.featured || !req.body.original || !req.body.twoPlayer || !req.body.coins || !req.body.epic) return -1
     
-    const offset = req.body.page * 10
+    const offset = Number(req.body.page) * 10
 
     let filters: string[] = []
 
@@ -91,10 +92,10 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     switch(req.body.type) {
         case '0': // search without filters
-            sql = "SELECT * FROM levels WHERE name LIKE CONCAT('%', ?, '%') AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") LIMIT 10 OFFSET ?"
-            props = [req.body.str, offset]
-            countsql = "SELECT count(*) FROM levels WHERE name LIKE CONCAT('%', ?, '%') AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
-            countprops = [req.body.str]
+            sql = "SELECT * FROM levels WHERE name LIKE CONCAT('%', ?, '%') OR levelID = ? AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") LIMIT 10 OFFSET ?"
+            props = [req.body.str, req.body.str, offset]
+            countsql = "SELECT count(*) FROM levels WHERE name LIKE CONCAT('%', ?, '%') OR levelID = ? AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+            countprops = [req.body.str, req.body.str]
             break
 
         case '1': // most downloaded
@@ -192,5 +193,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     const count = (await query(countsql, countprops))[0]['count(*)']
 
+    Logger.event_get('Levels fetched')
     return `${levels}#${users}##${count}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`
 }

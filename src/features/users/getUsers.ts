@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
+import Logger from '../../lib/logger'
 
 type Body = {
     str: string,
@@ -25,5 +26,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     const count = (await query("SELECT count(*) FROM accounts WHERE userName LIKE CONCAT('%', ?, '%')", [req.body.str]))[0]['count(*)']
 
+    Logger.event_get('Users fetched (user search)')
     return `${out}#${count}:${offset}:10`
 }

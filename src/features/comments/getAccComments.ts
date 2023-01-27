@@ -1,16 +1,17 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { timeDifference } from '../../lib/tools'
 import { query } from '../../lib/db'
+import Logger from '../../lib/logger'
 
 type Body = {
-    accountID: number,
-    page: number
+    accountID: string,
+    page: string
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.page) return -1
 
-    const offset = req.body.page * 10
+    const offset = Number(req.body.page) * 10
 
     const q = await query("SELECT * FROM acc_comments WHERE accountID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?", [req.body.accountID, offset])
 
@@ -24,5 +25,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     const count = (await query("SELECT count(*) FROM acc_comments WHERE accountID = ?", [req.body.accountID]))[0]['count(*)']
 
+    Logger.event_get('Account comments fetched')
     return `${out}#${count}:${offset}:10`
 }

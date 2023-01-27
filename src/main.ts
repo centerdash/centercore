@@ -2,6 +2,7 @@ import fastify from 'fastify'
 import formbody from '@fastify/formbody'
 import dotenv from 'dotenv'
 import { testConnection } from './lib/db'
+import Logger from './lib/logger'
 
 testConnection()
 dotenv.config()
@@ -17,9 +18,12 @@ import getUsersHandler from './features/users/getUsers'
 import updateUserSettingsHandler from './features/users/updateUserSettings'
 
 // comments
-import uploadAccComment from './features/comments/uploadAccComment'
-import getAccComments from './features/comments/getAccComments'
-import deleteAccComment from './features/comments/deleteAccComment'
+import uploadAccCommentHandler from './features/comments/uploadAccComment'
+import getAccCommentsHandler from './features/comments/getAccComments'
+import deleteAccCommentHandler from './features/comments/deleteAccComment'
+import uploadCommentHandler from './features/comments/uploadComment'
+import getCommentsHandler from './features/comments/getComments'
+import deleteCommentHandler from './features/comments/deleteComment'
 
 // friends
 import createFriendRequestHandler from './features/friends/uploadFriendRequest'
@@ -38,6 +42,7 @@ import updateDescHandler from './features/levels/updateDesc'
 import getLevelsHandler from './features/levels/getLevels'
 import downloadLevelHandler from './features/levels/downloadLevel'
 import reportLevelHandler from './features/levels/reportLevel'
+import deleteLevelUserHandler from './features/levels/deleteLevelUser'
 
 // messages
 import uploadMessageHandler from './features/messages/uploadMessage'
@@ -61,9 +66,12 @@ server.post(`${process.env.SERVER_BASE_PATH}/getGJUserInfo20.php`, getUserInfoHa
 server.post(`${process.env.SERVER_BASE_PATH}/getGJUsers20.php`, getUsersHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/updateGJAccSettings20.php`, updateUserSettingsHandler)
 
-server.post(`${process.env.SERVER_BASE_PATH}/getGJAccountComments20.php`, getAccComments)
-server.post(`${process.env.SERVER_BASE_PATH}/uploadGJAccComment20.php`, uploadAccComment)
-server.post(`${process.env.SERVER_BASE_PATH}/deleteGJAccComment20.php`, deleteAccComment)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJAccountComments20.php`, getAccCommentsHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/uploadGJAccComment20.php`, uploadAccCommentHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/deleteGJAccComment20.php`, deleteAccCommentHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/uploadGJComment21.php`, uploadCommentHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJComments21.php`, getCommentsHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/deleteGJComment20.php`, deleteCommentHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadFriendRequest20.php`, createFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJFriendRequests20.php`, removeFriendRequestHandler)
@@ -80,6 +88,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/updateGJDesc20.php`, updateDescHand
 server.post(`${process.env.SERVER_BASE_PATH}/getGJLevels21.php`, getLevelsHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/downloadGJLevel22.php`, downloadLevelHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/reportGJLevel.php`, reportLevelHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/deleteGJLevelUser20.php`, deleteLevelUserHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessageHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)
@@ -99,5 +108,5 @@ server.listen({
     host: process.env.SERVER_HOST
 }, err => {
     if(err) throw err
-    console.log(`Server now listening at ${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`)
+    Logger.log(`Server now listening at ${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`)
 })

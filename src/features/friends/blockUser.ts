@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP, getTimestamp } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -15,5 +16,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     await query("INSERT INTO blocks (fromID, toID, timestamp) VALUES (?, ?, ?)", [req.body.accountID, req.body.targetAccountID, getTimestamp()])
 
+    Logger.event_create('User blocked')
     return 1
 }

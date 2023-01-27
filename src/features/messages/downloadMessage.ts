@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { timeDifference, verifyGJP } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -26,9 +27,11 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
         await query("UPDATE messages SET isRead = 1 WHERE messageID = ? LIMIT 1", [req.body.messageID])
         
         const q2 = await query("SELECT userName FROM accounts WHERE accountID = ?", [msg.fromID])
+        Logger.event_get('Message downloaded')
         return `1:${msg.messageID}:2:${msg.fromID}:3:${msg.fromID}:4:${msg.subject}:5:${msg.body}:6:${q2[0].userName}:7:${timeDifference(msg.timestamp)}:8:${msg.isRead}`
     } else {
         const q2 = await query("SELECT userName FROM accounts WHERE accountID = ?", [msg.fromID])
+        Logger.event_get('Message downloaded')
         return `1:${msg.messageID}:2:${msg.fromID}:3:${msg.fromID}:4:${msg.subject}:5:${msg.body}:6:${q2[0].userName}:7:${timeDifference(msg.timestamp)}:8:${msg.isRead}`
     }
 }

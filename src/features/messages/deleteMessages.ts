@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { query } from '../../lib/db'
 import { verifyGJP } from '../../lib/tools'
+import Logger from '../../lib/logger'
 
 type Body = {
     accountID: number,
@@ -15,5 +16,6 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     await query("DELETE FROM messages WHERE (fromID = ? OR toID = ?) AND messageID = ? LIMIT 1", [req.body.accountID, req.body.accountID, req.body.messageID])
 
+    Logger.event_delete('Message deleted')
     return 1
 }
