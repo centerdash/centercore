@@ -24,6 +24,7 @@ import deleteAccCommentHandler from './features/comments/deleteAccComment'
 import uploadCommentHandler from './features/comments/uploadComment'
 import getCommentsHandler from './features/comments/getComments'
 import deleteCommentHandler from './features/comments/deleteComment'
+import getCommentHistoryHandler from './features/comments/getCommentHistory'
 
 // friends
 import createFriendRequestHandler from './features/friends/uploadFriendRequest'
@@ -72,6 +73,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/deleteGJAccComment20.php`, deleteAc
 server.post(`${process.env.SERVER_BASE_PATH}/uploadGJComment21.php`, uploadCommentHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJComments21.php`, getCommentsHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJComment20.php`, deleteCommentHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJCommentHistory.php`, getCommentHistoryHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadFriendRequest20.php`, createFriendRequestHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJFriendRequests20.php`, removeFriendRequestHandler)

@@ -17,10 +17,10 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     const offset = Number(req.body.page) * 10
 
     let q
-    if(req.body.mode == '0') {
-        q = await query("SELECT *, comments.timestamp AS commentTimestamp FROM comments LEFT JOIN accounts ON comments.authorID = accounts.accountID WHERE levelID = ? ORDER BY comments.timestamp DESC LIMIT 10 OFFSET ?", [req.body.levelID, offset])
-    } else {
+    if(req.body.mode == '1') {
         q = await query("SELECT *, comments.timestamp AS commentTimestamp FROM comments LEFT JOIN accounts ON comments.authorID = accounts.accountID WHERE levelID = ? ORDER BY likes DESC LIMIT 10 OFFSET ?", [req.body.levelID, offset])
+    } else {
+        q = await query("SELECT *, comments.timestamp AS commentTimestamp FROM comments LEFT JOIN accounts ON comments.authorID = accounts.accountID WHERE levelID = ? ORDER BY comments.timestamp DESC LIMIT 10 OFFSET ?", [req.body.levelID, offset])
     }
 
     let out = ''
