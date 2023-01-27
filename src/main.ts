@@ -44,6 +44,7 @@ import getLevelsHandler from './features/levels/getLevels'
 import downloadLevelHandler from './features/levels/downloadLevel'
 import reportLevelHandler from './features/levels/reportLevel'
 import deleteLevelUserHandler from './features/levels/deleteLevelUser'
+import getDailyLevelHandler from './features/levels/getDailyLevel'
 
 // messages
 import uploadMessageHandler from './features/messages/uploadMessage'
@@ -91,6 +92,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/getGJLevels21.php`, getLevelsHandle
 server.post(`${process.env.SERVER_BASE_PATH}/downloadGJLevel22.php`, downloadLevelHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/reportGJLevel.php`, reportLevelHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJLevelUser20.php`, deleteLevelUserHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJDailyLevel.php`, getDailyLevelHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessageHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)
