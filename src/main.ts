@@ -52,6 +52,9 @@ import getMessagesHandler from './features/messages/getMessages'
 import downloadMessageHandler from './features/messages/downloadMessage'
 import deleteMessagesHandler from './features/messages/deleteMessages'
 
+// scores
+import getScoresHandler from './features/scores/getScores'
+
 // misc
 import likeItemHandler from './features/misc/likeItem'
 import getAccountURLHandler from './features/misc/getAccountURL'
@@ -98,6 +101,8 @@ server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessa
 server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/downloadGJMessage20.php`, downloadMessageHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJMessages20.php`, deleteMessagesHandler)
+
+server.post(`${process.env.SERVER_BASE_PATH}/getGJScores20.php`, getScoresHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getAccountURL.php`, getAccountURLHandler)
