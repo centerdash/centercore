@@ -23,6 +23,8 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
         q = await query("SELECT *, comments.timestamp AS commentTimestamp FROM comments LEFT JOIN accounts ON comments.authorID = accounts.accountID WHERE levelID = ? ORDER BY comments.timestamp DESC LIMIT 10 OFFSET ?", [req.body.levelID, offset])
     }
 
+    if(q.length == 0) return -2
+
     let out = ''
 
     q.forEach((comment: any) => {

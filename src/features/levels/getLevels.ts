@@ -23,7 +23,8 @@ type Body = {
     noStar: number,
     demonFilter: string,
     accountID: string,
-    gjp: string
+    gjp: string,
+    local: string
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
@@ -32,6 +33,8 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     const offset = Number(req.body.page) * 10
 
     let filters: string[] = []
+
+    if(!req.body.local) req.body.local = '0'
 
     if(req.body.featured == 1) filters.push("featured = 1")
     if(req.body.epic == 1) filters.push("epic = 1")
@@ -129,12 +132,19 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             break
         
         case '5': // user levels
-            if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
-
-            sql = "SELECT * FROM levels WHERE unlisted = 0 AND authorID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
-            props = [req.body.str, offset]
-            countsql = "SELECT count(*) FROM levels WHERE unlisted = 0 AND authorID = ?"
-            countprops = [req.body.str]
+            if(req.body.local == '1') {
+                if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
+                
+                sql = "SELECT * FROM levels WHERE authorID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
+                props = [req.body.str, offset]
+                countsql = "SELECT count(*) FROM levels WHERE authorID = ?"
+                countprops = [req.body.str]
+            } else {
+                sql = "SELECT * FROM levels WHERE unlisted = 0 AND authorID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
+                props = [req.body.str, offset]
+                countsql = "SELECT count(*) FROM levels WHERE unlisted = 0 AND authorID = ?"
+                countprops = [req.body.str]
+            }
             break
 
         case '6': // featured
