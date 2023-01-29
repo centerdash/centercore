@@ -1,4 +1,4 @@
-import { getDifficulty, verifyGJP } from './tools'
+import { getDifficulty, getTimestamp, verifyGJP } from './tools'
 import { query } from './db'
 
 export default class Commands {
@@ -51,6 +51,28 @@ export default class Commands {
             } else return false
 
             return 'Epic changed!'
+        } else if(comment.startsWith('!daily') && isBaseCommand && (modType == 2)) {
+            let lastTimestamp = await query("SELECT assignTimestamp FROM daily WHERE weekly = 0 ORDER BY assignTimestamp DESC LIMIT 1")
+
+            if(lastTimestamp.length == 0) {
+                // this is first daily assign
+                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 0, ?)", [levelID, getTimestamp()])
+            } else {
+                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 0, ?)", [levelID, lastTimestamp[0].assignTimestamp + (60 * 60 * 24)])
+            }
+
+            return 'Level added to daily queue!'
+        } else if(comment.startsWith('!weekly') && isBaseCommand && (modType == 2)) {
+            let lastTimestamp = await query("SELECT assignTimestamp FROM daily WHERE weekly = 1 ORDER BY assignTimestamp DESC LIMIT 1")
+
+            if(lastTimestamp.length == 0) {
+                // this is first weekly assign
+                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 1, ?)", [levelID, getTimestamp()])
+            } else {
+                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 1, ?)", [levelID, lastTimestamp[0].assignTimestamp + (60 * 60 * 24 * 7)])
+            }
+
+            return 'Level added to weekly queue!'
         }
 
         return false
