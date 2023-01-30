@@ -32,7 +32,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     const q2 = await query("SELECT count(*) FROM accounts WHERE stars > ?", [user.stars])
     const globalRank = q2[0]['count(*)'] + 1
 
-    const q3 = await query("SELECT count(*) FROM messages WHERE toID = ?", [req.body.accountID])
+    const q3 = await query("SELECT count(*) FROM messages WHERE toID = ? AND isRead = 0", [req.body.accountID])
     const messages = q3[0]['count(*)']
 
     if(req.body.accountID && req.body.gjp && req.body.accountID == req.body.targetAccountID) {
