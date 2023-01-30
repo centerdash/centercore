@@ -27,7 +27,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     const user = q[0]
     
     const q1 = await query("SELECT count(*) FROM accounts WHERE stars > ? AND stars > 10", [user.stars])
-    const rank = q1[0]['count(*)'] + 1
+    const rank = user.stars > 10 ? q1[0]['count(*)'] + 1 : 0
 
     const q2 = await query("SELECT count(*) FROM accounts WHERE stars > ?", [user.stars])
     const globalRank = q2[0]['count(*)'] + 1
