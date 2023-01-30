@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Янв 29 2023 г., 13:40
+-- Время создания: Янв 30 2023 г., 16:03
 -- Версия сервера: 10.4.27-MariaDB
 -- Версия PHP: 8.0.25
 
@@ -61,7 +61,7 @@ CREATE TABLE `accounts` (
   `icon` int(11) NOT NULL DEFAULT 0,
   `iconType` int(11) NOT NULL DEFAULT 0,
   `isBanned` int(1) NOT NULL DEFAULT 0,
-  `isActive` int(1) NOT NULL DEFAULT 0,
+  `isActive` int(1) NOT NULL DEFAULT 1,
   `verifyCode` int(10) NOT NULL,
   `token` varchar(20) NOT NULL,
   `avatar` varchar(255) NOT NULL DEFAULT '/content/avatars/default.png',
@@ -215,7 +215,7 @@ CREATE TABLE `messages` (
   `messageID` int(11) NOT NULL,
   `fromID` int(11) NOT NULL,
   `toID` int(11) NOT NULL,
-  `subject` varchar(45) NOT NULL,
+  `subject` varchar(255) NOT NULL,
   `body` varchar(255) NOT NULL,
   `isRead` int(11) NOT NULL DEFAULT 0,
   `timestamp` int(11) NOT NULL
