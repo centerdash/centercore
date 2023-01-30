@@ -9,7 +9,7 @@ This core is under development and testing, so it may have critical security and
 ## Setup
 
 ```bash
-npm i # (or "yarn add") install dependencies
+npm i # (or "yarn") install dependencies
 cp example.env .env # copy example settings
 ```
 edit .env for your server
