@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Янв 31 2023 г., 12:00
+-- Время создания: Янв 31 2023 г., 15:13
 -- Версия сервера: 10.4.27-MariaDB
 -- Версия PHP: 8.0.25
 
@@ -60,6 +60,11 @@ CREATE TABLE `accounts` (
   `explosion` int(11) NOT NULL DEFAULT 0,
   `icon` int(11) NOT NULL DEFAULT 0,
   `iconType` int(11) NOT NULL DEFAULT 0,
+  `chest1time` int(11) NOT NULL DEFAULT 0,
+  `chest1count` int(11) NOT NULL DEFAULT 0,
+  `chest2time` int(11) NOT NULL DEFAULT 0,
+  `chest2count` int(11) NOT NULL DEFAULT 0,
+  `completedLevels` int(11) NOT NULL DEFAULT 0,
   `isBanned` int(1) NOT NULL DEFAULT 0,
   `isActive` int(1) NOT NULL DEFAULT 1,
   `verifyCode` int(10) NOT NULL,
