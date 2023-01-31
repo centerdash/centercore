@@ -1,4 +1,4 @@
-import { getDifficulty, getTimestamp, verifyGJP, calculateCps, getDemonDifficulty } from './tools'
+import { getDifficulty, getTimestamp, verifyGJP, calculateCps } from './tools'
 import { query } from './db'
 import Logger from './logger'
 import { unlinkSync } from 'fs'
