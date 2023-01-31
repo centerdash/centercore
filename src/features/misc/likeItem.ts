@@ -18,7 +18,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     if(!req.body.like) req.body.like = 1
 
-    const count = (await query("SELECT count(*) FROM likes WHERE fromID = ? AND targetID = ?", [req.body.accountID, req.body.itemID, req.body.type]))[0]['count(*)']
+    const count = (await query("SELECT count(*) FROM likes WHERE fromID = ? AND targetID = ? AND type = ?", [req.body.accountID, req.body.itemID, req.body.type]))[0]['count(*)']
     if(count > 0) return -1
 
     if(req.body.type == 1) {
