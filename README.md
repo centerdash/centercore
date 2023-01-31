@@ -37,6 +37,14 @@ npm run start # (or "yarn start") start builded server
     - add levels to daily list
     - delete levels
 
+### Rates
+- **All demons have 10+ stars, depending on difficulty**
+    - Easy demon - 10*
+    - Medium demon - 11*
+    - Hard demon - 12*
+    - Insane demon - 13*
+    - Extreme demon - 14* or 15*
+
 ### Commands
 List of available commands (you can use it in level comments):
 
@@ -46,9 +54,9 @@ List of available commands (you can use it in level comments):
     - `!rate <stars>` (ex. `!rate 5`) - rate a level, need normal or elder moderator
         - `!rate 0` will remove rate from level
         - `!rate 1` will set level as auto
-        - `!rate 10` will set level as easy demon, you can change demon difficulty by `!demon` command
-
-    - `!demon <name>` (ex. `!demon medium`) - set demon difficulty, only works if level was rated as demon
+        - `!rate 10` will set level as easy demon
+        - `!rate 13` will set level as insane demon
+        - `!rate 15` will set level as extreme demon
 
     - `!featured <1 or 0>` (ex. `!featured 1`) - set level as featured or not, need normal or elder moderator
 

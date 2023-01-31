@@ -1,6 +1,7 @@
-import { getDifficulty, getTimestamp, verifyGJP, calculateCps } from './tools'
+import { getDifficulty, getTimestamp, verifyGJP, calculateCps, getDemonDifficulty } from './tools'
 import { query } from './db'
 import Logger from './logger'
+import { unlinkSync } from 'fs'
 
 export default class Commands {
     static async doCommand(comment: string, levelID: number | string, accountID: number | string, gjp: string): Promise<string | boolean> {
@@ -21,14 +22,15 @@ export default class Commands {
             let stars = comment.split(' ')[1]
             let diff = getDifficulty(Number(stars))
 
-            if(stars == '10') {
-                await query("UPDATE levels SET stars = 10, demonRate = 3, autoRate = 0, difficulty = ? WHERE levelID = ?", [diff, levelID])
+            if(Number(stars) >= 10) {
+                let demonRate = getDemonDifficulty(Number(stars))
+                await query("UPDATE levels SET stars = ?, demonRate = ?, autoRate = 0, difficulty = ?, rateTimestamp = ? WHERE levelID = ?", [stars, demonRate, diff, getTimestamp(), levelID])
             } else if(stars == '0') {
-                await query("UPDATE levels SET stars = 0, demonRate = 0, autoRate = 0, difficulty = ? WHERE levelID = ?", [diff, levelID])
+                await query("UPDATE levels SET stars = 0, demonRate = 0, autoRate = 0, difficulty = ?, rateTimestamp = 0 WHERE levelID = ?", [diff, levelID])
             } else if(stars == '1') {
-                await query("UPDATE levels SET stars = 1, demonRate = 0, autoRate = 1, difficulty = ? WHERE levelID = ?", [diff, levelID])
+                await query("UPDATE levels SET stars = 1, demonRate = 0, autoRate = 1, difficulty = ?, rateTimestamp = ? WHERE levelID = ?", [diff, getTimestamp(), levelID])
             } else {
-                await query("UPDATE levels SET stars = ?, demonRate = 0, autoRate = 0, difficulty = ? WHERE levelID = ?", [stars, diff, levelID])
+                await query("UPDATE levels SET stars = ?, demonRate = 0, autoRate = 0, difficulty = ?, rateTimestamp = ? WHERE levelID = ?", [stars, diff, getTimestamp(), levelID])
             }
 
             await calculateCps()
@@ -85,23 +87,18 @@ export default class Commands {
 
             Logger.event_create('Level added to weekly queue')
             return 'Level added to weekly queue!'
-        } else if(comment.startsWith('!demon') && isArgumentCommand && (modType == 2)) {
-            let demon = comment.split(' ')[1]
-
-            if(demon == 'easy') {
-                await query("UPDATE levels SET demonRate = 3 WHERE levelID = ?", [levelID])
-            } else if(demon == 'medium') {
-                await query("UPDATE levels SET demonRate = 4 WHERE levelID = ?", [levelID])
-            } else if(demon == 'hard') {
-                await query("UPDATE levels SET demonRate = 2 WHERE levelID = ?", [levelID])
-            } else if(demon == 'insane') {
-                await query("UPDATE levels SET demonRate = 5 WHERE levelID = ?", [levelID])
-            } else if(demon == 'extreme') {
-                await query("UPDATE levels SET demonRate = 6 WHERE levelID = ?", [levelID])
+        } else if(comment.startsWith('!delete') && isBaseCommand && (modType == 2)) {
+            try {
+                unlinkSync(`${__dirname}/../../data/levels/${levelID}`)
+            } catch(err) {
+                console.log(err)
+                return false
             }
 
-            Logger.event_update('Demon changed')
-            return 'Demon changed!'
+            await query("DELETE FROM levels WHERE levelID = ? LIMIT 1", [levelID])
+
+            Logger.event_delete('Level deleted by moderator')
+            return 'Level deleted!'
         }
 
         return false
