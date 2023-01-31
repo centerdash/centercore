@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Янв 30 2023 г., 16:03
+-- Время создания: Янв 31 2023 г., 12:00
 -- Версия сервера: 10.4.27-MariaDB
 -- Версия PHP: 8.0.25
 
@@ -224,12 +224,58 @@ CREATE TABLE `messages` (
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `quests`
+--
+
+CREATE TABLE `quests` (
+  `questID` int(11) NOT NULL,
+  `type` int(11) NOT NULL COMMENT '1 - orbs\r\n2 - coins\r\n3 - stars',
+  `amount` int(11) NOT NULL,
+  `reward` int(11) NOT NULL,
+  `name` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `reports`
 --
 
 CREATE TABLE `reports` (
   `reportID` int(11) NOT NULL,
-  `levelID` int(11) NOT NULL
+  `levelID` int(11) NOT NULL,
+  `timestamp` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `songs`
+--
+
+CREATE TABLE `songs` (
+  `songID` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `author` varchar(255) NOT NULL,
+  `authorYoutube` varchar(255) NOT NULL DEFAULT '',
+  `youtube` varchar(255) NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `size` float NOT NULL,
+  `isBanned` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `suggestions`
+--
+
+CREATE TABLE `suggestions` (
+  `suggestID` int(11) NOT NULL,
+  `fromID` int(11) NOT NULL,
+  `levelID` int(11) NOT NULL,
+  `stars` int(11) NOT NULL,
+  `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -299,10 +345,28 @@ ALTER TABLE `messages`
   ADD PRIMARY KEY (`messageID`);
 
 --
+-- Индексы таблицы `quests`
+--
+ALTER TABLE `quests`
+  ADD PRIMARY KEY (`questID`);
+
+--
 -- Индексы таблицы `reports`
 --
 ALTER TABLE `reports`
   ADD PRIMARY KEY (`reportID`);
+
+--
+-- Индексы таблицы `songs`
+--
+ALTER TABLE `songs`
+  ADD PRIMARY KEY (`songID`);
+
+--
+-- Индексы таблицы `suggestions`
+--
+ALTER TABLE `suggestions`
+  ADD PRIMARY KEY (`suggestID`);
 
 --
 -- AUTO_INCREMENT для сохранённых таблиц
@@ -369,10 +433,28 @@ ALTER TABLE `messages`
   MODIFY `messageID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT для таблицы `quests`
+--
+ALTER TABLE `quests`
+  MODIFY `questID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT для таблицы `reports`
 --
 ALTER TABLE `reports`
   MODIFY `reportID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT для таблицы `songs`
+--
+ALTER TABLE `songs`
+  MODIFY `songID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT для таблицы `suggestions`
+--
+ALTER TABLE `suggestions`
+  MODIFY `suggestID` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

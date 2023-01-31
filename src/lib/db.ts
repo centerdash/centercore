@@ -37,6 +37,7 @@ export async function query(query: string, values: any[] = []): Promise<any> {
         db.connect(err => {
             if(err) {
                 console.log(err)
+                db.end()
                 reject(err)
             }
         })
@@ -47,6 +48,7 @@ export async function query(query: string, values: any[] = []): Promise<any> {
                 reject(err)
             }
 
+            db.end()
             resolve(q)
         })
     })

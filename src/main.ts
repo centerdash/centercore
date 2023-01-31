@@ -45,6 +45,7 @@ import downloadLevelHandler from './features/levels/downloadLevel'
 import reportLevelHandler from './features/levels/reportLevel'
 import deleteLevelUserHandler from './features/levels/deleteLevelUser'
 import getDailyLevelHandler from './features/levels/getDailyLevel'
+import rateStarsHandler from './features/levels/rateStars'
 
 // messages
 import uploadMessageHandler from './features/messages/uploadMessage'
@@ -55,10 +56,14 @@ import deleteMessagesHandler from './features/messages/deleteMessages'
 // scores
 import getScoresHandler from './features/scores/getScores'
 
+// rewards
+import getChallengesHandler from './features/rewards/getChallenges'
+
 // misc
 import likeItemHandler from './features/misc/likeItem'
 import getAccountURLHandler from './features/misc/getAccountURL'
 import requestUserAccessHandler from './features/misc/requestUserAccess'
+import getSongInfoHandler from './features/misc/getSongInfo'
 
 const server = fastify({ bodyLimit: 104857600 })
 server.register(formbody)
@@ -96,6 +101,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/downloadGJLevel22.php`, downloadLev
 server.post(`${process.env.SERVER_BASE_PATH}/reportGJLevel.php`, reportLevelHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/deleteGJLevelUser20.php`, deleteLevelUserHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJDailyLevel.php`, getDailyLevelHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/rateGJStars211.php`, rateStarsHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/uploadGJMessage20.php`, uploadMessageHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJMessages20.php`, getMessagesHandler)
@@ -104,9 +110,12 @@ server.post(`${process.env.SERVER_BASE_PATH}/deleteGJMessages20.php`, deleteMess
 
 server.post(`${process.env.SERVER_BASE_PATH}/getGJScores20.php`, getScoresHandler)
 
+server.post(`${process.env.SERVER_BASE_PATH}/getGJChallenges.php`, getChallengesHandler)
+
 server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getAccountURL.php`, getAccountURLHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/requestUserAccess.php`, requestUserAccessHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJSongInfo.php`, getSongInfoHandler)
 
 server.setNotFoundHandler((req, rep) => {
     rep.code(404).send(-1)

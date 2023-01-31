@@ -117,3 +117,27 @@ export function getDifficulty(stars: number): number {
     if(stars == 8 || stars == 9 || stars == 10) return 50
     return 0
 }
+
+/**
+ * calculate creator points for users
+ */
+export async function calculateCps() {
+    await query(`
+        UPDATE accounts
+        LEFT JOIN (
+            SELECT accountsTable.accountID, (IFNULL(ratedTable.rated, 0) + IFNULL(featuredTable.featured, 0) + (IFNULL(epicTable.epic, 0) * 2)) AS cp FROM (
+                SELECT accountID FROM accounts
+            ) AS accountsTable
+            LEFT JOIN (
+                SELECT authorID, count(*) AS rated FROM levels WHERE stars > 0 GROUP BY(authorID)
+            ) AS ratedTable ON accountsTable.accountID = ratedTable.authorID
+            LEFT JOIN (
+                SELECT authorID, count(*) AS featured FROM levels WHERE featured = 1 GROUP BY(authorID)
+            ) AS featuredTable ON accountsTable.accountID = featuredTable.authorID
+            LEFT JOIN (
+                SELECT authorID, count(*) AS epic FROM levels WHERE epic = 1 GROUP BY(authorID)
+            ) AS epicTable ON accountsTable.accountID = epicTable.authorID
+        ) AS calculated ON accounts.accountID = calculated.accountID
+        SET accounts.cps = IFNULL(calculated.cp, 0)
+    `)
+}

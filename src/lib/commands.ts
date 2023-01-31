@@ -1,5 +1,6 @@
-import { getDifficulty, getTimestamp, verifyGJP } from './tools'
+import { getDifficulty, getTimestamp, verifyGJP, calculateCps } from './tools'
 import { query } from './db'
+import Logger from './logger'
 
 export default class Commands {
     static async doCommand(comment: string, levelID: number | string, accountID: number | string, gjp: string): Promise<string | boolean> {
@@ -30,6 +31,9 @@ export default class Commands {
                 await query("UPDATE levels SET stars = ?, demonRate = 0, autoRate = 0, difficulty = ? WHERE levelID = ?", [stars, diff, levelID])
             }
 
+            await calculateCps()
+
+            Logger.event_update('Level rated')
             return 'Level rated!'
         } else if(comment.startsWith('!featured') && isNumberArgumentCommand && (modType == 1 || modType == 2)) {
             let featured = comment.split(' ')[1]
@@ -40,6 +44,9 @@ export default class Commands {
                 await query("UPDATE levels SET featured = 1 WHERE levelID = ?", [levelID])
             } else return false
 
+            await calculateCps()
+
+            Logger.event_update('Feature changed')
             return 'Featured changed!'
         } else if(comment.startsWith('!epic') && isNumberArgumentCommand && (modType == 2)) {
             let epic = comment.split(' ')[1]
@@ -50,6 +57,9 @@ export default class Commands {
                 await query("UPDATE levels SET epic = 1 WHERE levelID = ?", [levelID])
             } else return false
 
+            await calculateCps()
+
+            Logger.event_update('Epic changed')
             return 'Epic changed!'
         } else if(comment.startsWith('!daily') && isBaseCommand && (modType == 2)) {
             let lastTimestamp = await query("SELECT assignTimestamp FROM daily WHERE weekly = 0 ORDER BY assignTimestamp DESC LIMIT 1")
@@ -61,6 +71,7 @@ export default class Commands {
                 await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 0, ?)", [levelID, lastTimestamp[0].assignTimestamp + (60 * 60 * 24)])
             }
 
+            Logger.event_create('Level added to daily queue')
             return 'Level added to daily queue!'
         } else if(comment.startsWith('!weekly') && isBaseCommand && (modType == 2)) {
             let lastTimestamp = await query("SELECT assignTimestamp FROM daily WHERE weekly = 1 ORDER BY assignTimestamp DESC LIMIT 1")
@@ -72,7 +83,25 @@ export default class Commands {
                 await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 1, ?)", [levelID, lastTimestamp[0].assignTimestamp + (60 * 60 * 24 * 7)])
             }
 
+            Logger.event_create('Level added to weekly queue')
             return 'Level added to weekly queue!'
+        } else if(comment.startsWith('!demon') && isArgumentCommand && (modType == 2)) {
+            let demon = comment.split(' ')[1]
+
+            if(demon == 'easy') {
+                await query("UPDATE levels SET demonRate = 3 WHERE levelID = ?", [levelID])
+            } else if(demon == 'medium') {
+                await query("UPDATE levels SET demonRate = 4 WHERE levelID = ?", [levelID])
+            } else if(demon == 'hard') {
+                await query("UPDATE levels SET demonRate = 2 WHERE levelID = ?", [levelID])
+            } else if(demon == 'insane') {
+                await query("UPDATE levels SET demonRate = 5 WHERE levelID = ?", [levelID])
+            } else if(demon == 'extreme') {
+                await query("UPDATE levels SET demonRate = 6 WHERE levelID = ?", [levelID])
+            }
+
+            Logger.event_update('Demon changed')
+            return 'Demon changed!'
         }
 
         return false
