@@ -19,4 +19,8 @@ export default class Crypto {
 	genSolo3(multiString: String) {
         return createHash('sha1').update(multiString + 'oC36fpYaPtdg').digest('hex')
     }
+
+    genSolo4(multiString: String) {
+        return createHash('sha1').update(multiString + 'pC26fpYaQCtg').digest('hex')
+    }
 }

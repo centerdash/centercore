@@ -56,8 +56,13 @@ import deleteMessagesHandler from './features/messages/deleteMessages'
 // scores
 import getScoresHandler from './features/scores/getScores'
 
+// saves
+import backupAccountHandler from './features/saves/backupAccount'
+import syncAccountHandler from './features/saves/syncAccount'
+
 // rewards
 import getChallengesHandler from './features/rewards/getChallenges'
+import getRewardsHandler from './features/rewards/getRewards'
 
 // misc
 import likeItemHandler from './features/misc/likeItem'
@@ -110,7 +115,11 @@ server.post(`${process.env.SERVER_BASE_PATH}/deleteGJMessages20.php`, deleteMess
 
 server.post(`${process.env.SERVER_BASE_PATH}/getGJScores20.php`, getScoresHandler)
 
+server.post(`${process.env.SERVER_BASE_PATH}/database/accounts/backupGJAccountNew.php`, backupAccountHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/database/accounts/syncGJAccountNew.php`, syncAccountHandler)
+
 server.post(`${process.env.SERVER_BASE_PATH}/getGJChallenges.php`, getChallengesHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJRewards.php`, getRewardsHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getAccountURL.php`, getAccountURLHandler)

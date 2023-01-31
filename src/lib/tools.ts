@@ -114,7 +114,7 @@ export function getDifficulty(stars: number): number {
     if(stars == 3) return 20
     if(stars == 4 || stars == 5) return 30
     if(stars == 6 || stars == 7) return 40
-    if(stars >= 8) return 50
+    if(stars == 8 || stars == 9 || stars == 10) return 50
     return 0
 }
 
@@ -140,17 +140,4 @@ export async function calculateCps() {
         ) AS calculated ON accounts.accountID = calculated.accountID
         SET accounts.cps = IFNULL(calculated.cp, 0)
     `)
-}
-
-/**
- * get demon difficulty from stars
- * @returns demon difficulty
- */
-export function getDemonDifficulty(stars: number): number {
-    if(stars == 10) return 3
-    if(stars == 11) return 4
-    if(stars == 12) return 2
-    if(stars == 13) return 5
-    if(stars >= 14) return 6
-    return 0
 }
