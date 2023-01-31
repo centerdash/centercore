@@ -44,6 +44,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
         default:
             q = await query("SELECT * FROM levels WHERE levelID = ?", [req.body.levelID])
             hash2Appendix = ',0'
+            appendix = `#${q[0].authorID}:${q[0].userName}:${q[0].authorID}`
             break
     }
 

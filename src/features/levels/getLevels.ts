@@ -199,7 +199,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     })
 
     levels = levels.slice(0, -1)
-    users = levels.slice(0, -1)
+    users = users.slice(0, -1)
 
     const count = (await query(countsql, countprops))[0]['count(*)']
 
