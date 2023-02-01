@@ -29,7 +29,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             break
 
         case 'creators':
-            q = await query("SELECT * FROM accounts WHERE isActive = 1 AND isBanned = 0 ORDER BY cps DESC LIMIT 100")
+            q = await query("SELECT * FROM accounts WHERE isActive = 1 AND isBanned = 0 AND cps > 0 ORDER BY cps DESC LIMIT 100")
             break
 
         case 'relative':

@@ -24,12 +24,24 @@ type Body = {
     demonFilter: string,
     accountID: string,
     gjp: string,
-    local: string
+    local: string,
+    gauntlet: string
 }
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    if(!req.body.type || !req.body.diff || !req.body.len || !req.body.page || !req.body.uncompleted || !req.body.onlyCompleted || !req.body.featured || !req.body.original || !req.body.twoPlayer || !req.body.coins || !req.body.epic) return -1
+    // if(!req.body.type || !req.body.diff || !req.body.len || !req.body.page || !req.body.uncompleted || !req.body.onlyCompleted || !req.body.featured || !req.body.original || !req.body.twoPlayer || !req.body.coins || !req.body.epic) return -1
     
+    if(!req.body.type) req.body.type = 'gauntlet'
+    if(!req.body.diff) req.body.diff = '-'
+    if(!req.body.len) req.body.len = '-'
+    if(!req.body.uncompleted) req.body.uncompleted = 0
+    if(!req.body.onlyCompleted) req.body.onlyCompleted = 0
+    if(!req.body.featured) req.body.featured = 0
+    if(!req.body.original) req.body.original = 0
+    if(!req.body.twoPlayer) req.body.twoPlayer = 0
+    if(!req.body.coins) req.body.coins = 0
+    if(!req.body.epic) req.body.epic = 0
+
     const offset = Number(req.body.page) * 10
 
     let filters: string[] = []
@@ -182,6 +194,18 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             countprops = []
             break
 
+        case 'gauntlet': // gauntlet
+            let q = await query("SELECT * FROM gauntlets WHERE gauntletID = ?", [req.body.gauntlet])
+            if(q.length == 0) return -1
+
+            let levels = q.map((g: any) => { return `${g.level1},${g.level2},${g.level3},${g.level4},${g.level5}` })
+
+            sql = "SELECT * FROM levels WHERE levelID IN (" + levels[0] + ") ORDER BY stars DESC"
+            props = []
+            countsql = "SELECT count(*) FROM levels WHERE levelID IN (" + levels[0] + ")"
+            countprops = []
+            break
+
         default:
             return -1
     }
@@ -190,19 +214,27 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     let levels = ''
     let users = ''
+    let songs = ''
     let hash = ''
 
-    q.forEach((lvl: any) => {
-        levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}:35:${lvl.customSong}|`
+    for(let lvl of q) {
+        levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}${req.body.gauntlet ? `:44:${req.body.gauntlet}` : ''}:35:${lvl.customSong}|`
         users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
+        if(lvl.customSong != 0) {
+            let song = await query("SELECT * FROM levels LEFT JOIN songs ON levels.customSong = songs.songID WHERE levelID = ?", [lvl.levelID])
+            if(song.length > 0) {
+                songs += `1~|~${song[0].songID}~|~2~|~${song[0].name}~|~3~|~0~|~4~|~${song[0].author}~|~5~|~${song[0].size}~|~6~|~${song[0].youtube}~|~7~|~${song[0].authorYoutube}~|~8~|~1~|~10~|~${encodeURIComponent(song[0].url)}~:~`
+            }
+        }
         hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
-    })
+    }
 
     levels = levels.slice(0, -1)
     users = users.slice(0, -1)
+    songs = songs.slice(0, -3)
 
     const count = (await query(countsql, countprops))[0]['count(*)']
 
     Logger.event_get('Levels fetched')
-    return `${levels}#${users}##${count}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`
+    return `${levels}#${users}#${songs}#${count}:${offset}:10#${createHash('sha1').update(hash + 'xI25fpAapCQg').digest('hex')}`
 }

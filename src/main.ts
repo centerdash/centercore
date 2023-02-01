@@ -70,6 +70,9 @@ import getAccountURLHandler from './features/misc/getAccountURL'
 import requestUserAccessHandler from './features/misc/requestUserAccess'
 import getSongInfoHandler from './features/misc/getSongInfo'
 
+// packs
+import getGauntletsHandler from './features/packs/getGauntlets'
+
 const server = fastify({ bodyLimit: 104857600 })
 server.register(formbody)
 
@@ -125,6 +128,8 @@ server.post(`${process.env.SERVER_BASE_PATH}/likeGJItem211.php`, likeItemHandler
 server.post(`${process.env.SERVER_BASE_PATH}/getAccountURL.php`, getAccountURLHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/requestUserAccess.php`, requestUserAccessHandler)
 server.post(`${process.env.SERVER_BASE_PATH}/getGJSongInfo.php`, getSongInfoHandler)
+
+server.post(`${process.env.SERVER_BASE_PATH}/getGJGauntlets21.php`, getGauntletsHandler)
 
 server.setNotFoundHandler((req, rep) => {
     rep.code(404).send(-1)
