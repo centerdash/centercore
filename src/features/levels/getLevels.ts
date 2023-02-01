@@ -173,6 +173,15 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             countprops = []
             break
 
+        case '10': // map pack
+            if(!/^[1-9](,[1-9])*$/.test(req.body.str)) return -1
+
+            sql = "SELECT * FROM levels WHERE levelID IN (" + req.body.str + ")"
+            props = []
+            countsql = "SELECT count(*) FROM levels WHERE levelID IN (" + req.body.str + ")"
+            countprops = []
+            break
+
         case '11': // map pack
             sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0 ORDER BY rateTimestamp DESC, timestamp LIMIT 10 OFFSET ?"
             props = [offset]
