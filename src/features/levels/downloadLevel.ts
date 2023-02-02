@@ -74,10 +74,10 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     }
 
     const hash1 = new Crypto().genSolo(levelString)
-    const hash2 = new Crypto().genSolo2(`${lvl.authorID},${lvl.stars},${lvl.demonRate},${lvl.levelID},${lvl.coins},${lvl.featured},${lvl.password}${hash2Appendix}`)
+    const hash2 = new Crypto().genSolo2(`${lvl.authorID},${lvl.stars},${lvl.demonRate > 0 ? '1' : '0'},${lvl.levelID},${lvl.verifiedCoins},${lvl.featured},${lvl.password}${hash2Appendix}`)
 
     await query("UPDATE levels SET downloads = downloads + 1 WHERE levelID = ? LIMIT 1", [lvl.levelID])
 
     Logger.event_get('Level downloaded')
-    return `1:${lvl.levelID}:2:${lvl.name}:3:${lvl.description}:4:${levelString}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:11:1:12:${lvl.song}:13:21:14:${lvl.likes}:15:${lvl.length}:17:${lvl.demonRate > 0 ? '1' : '0'}:43:${lvl.demonRate}:18:${lvl.stars}:19:${lvl.featured}:25:${lvl.autoRate}${req.body.extras == '1' ? `:26:${lvl.levelInfo}` : ''}:27:${xorPass}:28:${timeDifference(lvl.timestamp)}${lvl.updateTimestamp == 0 ? ':29:' : timeDifference(lvl.updateTimestamp)}:30:${lvl.original}:31:${lvl.twoPlayer}:35:${lvl.customSong}:36:${lvl.extraString}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:40:${lvl.ldm}${dailyID}:42:${lvl.epic}:45:${lvl.objects}:46:1:47:2:48:1#${hash1}#${hash2}${appendix}`
+    return `1:${lvl.levelID}:2:${lvl.name}:3:${lvl.description}:4:${levelString}:5:${lvl.version}:6:${lvl.authorID}:8:${lvl.stars > 0 ? '10' : '0'}:9:${lvl.difficulty}:10:${lvl.downloads}:11:1:12:${lvl.song}:13:21:14:${lvl.likes}:15:${lvl.length}:17:${lvl.demonRate > 0 ? '1' : '0'}:43:${lvl.demonRate}:18:${lvl.stars}:19:${lvl.featured}:25:${lvl.autoRate}${req.body.extras == '1' ? `:26:${lvl.levelInfo}` : ''}:27:${xorPass}:28:${timeDifference(lvl.timestamp)}${lvl.updateTimestamp > 0 ? `:29:${timeDifference(lvl.updateTimestamp)}` : ''}:30:${lvl.original}:31:${lvl.twoPlayer}:35:${lvl.customSong}:36:${lvl.extraString}:37:${lvl.coins}:38:${lvl.verifiedCoins}:39:${lvl.requestedStars}:40:${lvl.ldm}${dailyID}:42:${lvl.epic}:45:${lvl.objects}:46:${lvl.wt}:47:${lvl.wt2}#${hash1}#${hash2}${appendix}`
 }

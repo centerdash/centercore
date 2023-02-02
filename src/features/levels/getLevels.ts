@@ -174,7 +174,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             break
 
         case '10': // map pack
-            if(!/^[1-9](,[1-9])*$/.test(req.body.str)) return -1
+            if(!/^\d+(?:,\d+)*$/.test(req.body.str)) return -1
 
             sql = "SELECT * FROM levels WHERE levelID IN (" + req.body.str + ")"
             props = []

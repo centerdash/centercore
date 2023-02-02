@@ -72,6 +72,7 @@ import getSongInfoHandler from './features/misc/getSongInfo'
 
 // packs
 import getGauntletsHandler from './features/packs/getGauntlets'
+import getMapPacksHandler from './features/packs/getMapPacks'
 
 const server = fastify({ bodyLimit: 104857600 })
 server.register(formbody)
@@ -130,6 +131,7 @@ server.post(`${process.env.SERVER_BASE_PATH}/requestUserAccess.php`, requestUser
 server.post(`${process.env.SERVER_BASE_PATH}/getGJSongInfo.php`, getSongInfoHandler)
 
 server.post(`${process.env.SERVER_BASE_PATH}/getGJGauntlets21.php`, getGauntletsHandler)
+server.post(`${process.env.SERVER_BASE_PATH}/getGJMapPacks21.php`, getMapPacksHandler)
 
 server.setNotFoundHandler((req, rep) => {
     rep.code(404).send(-1)

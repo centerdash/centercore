@@ -13,7 +13,7 @@ type Body = {
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.accountID || !req.body.gjp || !req.body.levelID) return -1
 
-    if(!/^[0-9]$/g.test(req.body.levelID)) return -1
+    if(!/^[0-9]*$/g.test(req.body.levelID)) return -1
 
     if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 

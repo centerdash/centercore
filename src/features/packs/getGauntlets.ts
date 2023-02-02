@@ -3,7 +3,7 @@ import { query } from '../../lib/db'
 import Logger from '../../lib/logger'
 import Crypto from '../../lib/crypto'
 
-export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
+export default async function handler(req: FastifyRequest, rep: FastifyReply) {
     let q = await query("SELECT * FROM gauntlets ORDER BY gauntletID ASC")
 
     let out = ''
