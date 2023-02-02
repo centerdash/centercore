@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Янв 31 2023 г., 15:13
+-- Время создания: Фев 02 2023 г., 15:30
 -- Версия сервера: 10.4.27-MariaDB
 -- Версия PHP: 8.0.25
 
@@ -160,6 +160,21 @@ CREATE TABLE `friend_reqs` (
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `gauntlets`
+--
+
+CREATE TABLE `gauntlets` (
+  `gauntletID` int(11) NOT NULL,
+  `level1` int(11) NOT NULL,
+  `level2` int(11) NOT NULL,
+  `level3` int(11) NOT NULL,
+  `level4` int(11) NOT NULL,
+  `level5` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `levels`
 --
 
@@ -192,8 +207,11 @@ CREATE TABLE `levels` (
   `requestedStars` int(11) NOT NULL,
   `unlisted` int(11) NOT NULL DEFAULT 0,
   `ldm` int(11) NOT NULL,
+  `verifiedCoins` int(11) NOT NULL DEFAULT 0,
   `extraString` varchar(255) NOT NULL,
-  `levelInfo` varchar(255) NOT NULL
+  `levelInfo` varchar(255) NOT NULL,
+  `wt` int(11) NOT NULL DEFAULT 0,
+  `wt2` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -208,6 +226,23 @@ CREATE TABLE `likes` (
   `targetID` int(11) NOT NULL,
   `type` int(11) NOT NULL,
   `timestamp` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `mappacks`
+--
+
+CREATE TABLE `mappacks` (
+  `mappackID` int(11) NOT NULL,
+  `levels` varchar(255) NOT NULL COMMENT 'list of level IDs separated by ","\r\nexample: 1,5,10 etc...',
+  `name` varchar(255) NOT NULL,
+  `stars` int(11) NOT NULL,
+  `coins` int(11) NOT NULL,
+  `difficulty` int(11) NOT NULL COMMENT '0 - auto\r\n1 - easy\r\n2 - normal\r\n3 - hard\r\n4 - harder\r\n5 - insane\r\n6 - hard demon\r\n7 - easy demon\r\n8 - medium demon\r\n9 - insane demon\r\n10 - extreme demon',
+  `textColor` varchar(45) NOT NULL DEFAULT '0,0,0',
+  `barColor` varchar(45) NOT NULL DEFAULT '0,0,0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -332,6 +367,12 @@ ALTER TABLE `friend_reqs`
   ADD PRIMARY KEY (`freqID`);
 
 --
+-- Индексы таблицы `gauntlets`
+--
+ALTER TABLE `gauntlets`
+  ADD PRIMARY KEY (`gauntletID`);
+
+--
 -- Индексы таблицы `levels`
 --
 ALTER TABLE `levels`
@@ -342,6 +383,12 @@ ALTER TABLE `levels`
 --
 ALTER TABLE `likes`
   ADD PRIMARY KEY (`likeID`);
+
+--
+-- Индексы таблицы `mappacks`
+--
+ALTER TABLE `mappacks`
+  ADD PRIMARY KEY (`mappackID`);
 
 --
 -- Индексы таблицы `messages`
@@ -420,6 +467,12 @@ ALTER TABLE `friend_reqs`
   MODIFY `freqID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT для таблицы `gauntlets`
+--
+ALTER TABLE `gauntlets`
+  MODIFY `gauntletID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT для таблицы `levels`
 --
 ALTER TABLE `levels`
@@ -430,6 +483,12 @@ ALTER TABLE `levels`
 --
 ALTER TABLE `likes`
   MODIFY `likeID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT для таблицы `mappacks`
+--
+ALTER TABLE `mappacks`
+  MODIFY `mappackID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT для таблицы `messages`
