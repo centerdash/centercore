@@ -63,26 +63,36 @@ export default class Commands {
             Logger.event_update('Epic changed')
             return 'Epic changed!'
         } else if(comment.startsWith('!daily') && isBaseCommand && (modType == 2)) {
-            let lastTimestamp = await query("SELECT assignTimestamp FROM daily WHERE weekly = 0 ORDER BY assignTimestamp DESC LIMIT 1")
+            let count = (await query("SELECT count(*) FROM daily WHERE levelID = ? AND weekly = 0", [levelID]))[0]['count(*)']
+            if(count > 0) return false
 
-            if(lastTimestamp.length == 0) {
-                // this is first daily assign
-                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 0, ?)", [levelID, getTimestamp()])
+            let q = await query("SELECT assignTimestamp FROM daily WHERE assignTimestamp >= ? AND weekly = 0 ORDER BY assignTimestamp DESC LIMIT 1", [Math.floor(new Date().setHours(24, 0, 0, 0) / 1000)])
+            let timestamp
+
+            if(q.length == 0) {
+                timestamp = Math.floor(new Date().setHours(24, 0, 0, 0) / 1000)
             } else {
-                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 0, ?)", [levelID, lastTimestamp[0].assignTimestamp + (60 * 60 * 24)])
+                timestamp = q[0].assignTimestamp + 86400
             }
+
+            await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 0, ?)", [levelID, timestamp])
 
             Logger.event_create('Level added to daily queue')
             return 'Level added to daily queue!'
         } else if(comment.startsWith('!weekly') && isBaseCommand && (modType == 2)) {
-            let lastTimestamp = await query("SELECT assignTimestamp FROM daily WHERE weekly = 1 ORDER BY assignTimestamp DESC LIMIT 1")
+            let count = (await query("SELECT count(*) FROM daily WHERE levelID = ? AND weekly = 1", [levelID]))[0]['count(*)']
+            if(count > 0) return false
+            
+            let q = await query("SELECT assignTimestamp FROM daily WHERE assignTimestamp >= ? AND weekly = 1 ORDER BY assignTimestamp DESC LIMIT 1", [Math.floor(new Date().setDate(new Date().getDate() + (1 + 7 - new Date().getDay()) % 7) / 1000)])
+            let timestamp
 
-            if(lastTimestamp.length == 0) {
-                // this is first weekly assign
-                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 1, ?)", [levelID, getTimestamp()])
+            if(q.length == 0) {
+                timestamp = Math.floor(new Date().setDate(new Date().getDate() + (1 + 7 - new Date().getDay()) % 7) / 1000)
             } else {
-                await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 1, ?)", [levelID, lastTimestamp[0].assignTimestamp + (60 * 60 * 24 * 7)])
+                timestamp = q[0].assignTimestamp + 604800
             }
+
+            await query("INSERT INTO daily (levelID, weekly, assignTimestamp) VALUES (?, 1, ?)", [levelID, timestamp])
 
             Logger.event_create('Level added to weekly queue')
             return 'Level added to weekly queue!'
