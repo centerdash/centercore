@@ -1,11 +1,6 @@
 # centercore
 Geometry Dash server emulator in TypeScript and MySQL
 
-# ATTENTION
-
-This core is under development and testing, so it may have critical security and performance issues. Please wait for release before use it for your GDPS.
-<p style="text-align: right;margin-right: 50px;">- myst</p>
-
 ## Setup
 
 ```bash
