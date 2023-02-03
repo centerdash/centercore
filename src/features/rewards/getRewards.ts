@@ -41,7 +41,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
         if(chest1left > 0) return -1
 
         await query("UPDATE accounts SET chest1count = chest1count + 1, chest1time = ? WHERE accountID = ? LIMIT 1", [time, req.body.accountID])
-    } else {
+    } else if(req.body.rewardType == '2') {
         if(chest2left > 0) return -1
 
         await query("UPDATE accounts SET chest2count = chest2count + 1, chest2time = ? WHERE accountID = ? LIMIT 1", [time, req.body.accountID])
