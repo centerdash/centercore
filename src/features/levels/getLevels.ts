@@ -227,7 +227,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     let hash = ''
 
     for(let lvl of q) {
-        levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.coins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}${req.body.gauntlet ? `:44:${req.body.gauntlet}` : ''}:35:${lvl.customSong}|`
+        levels += `1:${lvl.levelID}:2:${lvl.name}:5:${lvl.version}:6:${lvl.authorID}:8:10:9:${lvl.difficulty}:10:${lvl.downloads}:12:${lvl.song}:13:21:14:${lvl.likes}:17:${lvl.demonRate > 0 ? 1 : 0}:43:${lvl.demonRate > 0 ? lvl.demonRate : 0}:25:${lvl.autoRate}:18:${lvl.stars}:19:${lvl.featured}:42:${lvl.epic}:45:${lvl.objects}:3:${lvl.description}:15:${lvl.length}:30:${lvl.original}:31:${lvl.twoPlayer}:37:${lvl.coins}:38:${lvl.verifiedCoins}:39:${lvl.requestedStars}:46:1:47:2:40:${lvl.ldm}${req.body.gauntlet ? `:44:${req.body.gauntlet}` : ''}:35:${lvl.customSong}|`
         users += `${lvl.authorID}:${lvl.userName}:${lvl.authorID}|`
         if(lvl.customSong != 0) {
             let song = await query("SELECT * FROM levels LEFT JOIN songs ON levels.customSong = songs.songID WHERE levelID = ?", [lvl.levelID])
