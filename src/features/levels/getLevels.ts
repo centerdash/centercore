@@ -28,9 +28,7 @@ type Body = {
     gauntlet: string
 }
 
-export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
-    // if(!req.body.type || !req.body.diff || !req.body.len || !req.body.page || !req.body.uncompleted || !req.body.onlyCompleted || !req.body.featured || !req.body.original || !req.body.twoPlayer || !req.body.coins || !req.body.epic) return -1
-    
+export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {    
     if(!req.body.type) req.body.type = 'gauntlet'
     if(!req.body.diff) req.body.diff = '-'
     if(!req.body.len) req.body.len = '-'
@@ -47,6 +45,10 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     let filters: string[] = []
 
     if(!req.body.local) req.body.local = '0'
+
+    if(req.body.type == '5') {
+        if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
+    } else filters.push("unlisted = 0")
 
     if(req.body.featured == 1) filters.push("featured = 1")
     if(req.body.epic == 1) filters.push("epic = 1")
@@ -106,11 +108,19 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
     let countprops: any[] = []
 
     switch(req.body.type) {
+        case '15':
         case '0': // search without filters
-            sql = "SELECT * FROM levels WHERE name LIKE CONCAT('%', ?, '%') OR levelID = ? AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") LIMIT 10 OFFSET ?"
-            props = [req.body.str, req.body.str, offset]
-            countsql = "SELECT count(*) FROM levels WHERE name LIKE CONCAT('%', ?, '%') OR levelID = ? AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
-            countprops = [req.body.str, req.body.str]
+            if(req.body.str) {
+                sql = "SELECT * FROM levels WHERE name LIKE CONCAT('%', ?, '%') OR levelID = ? AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY likes DESC LIMIT 10 OFFSET ?"
+                props = [req.body.str, req.body.str, offset]
+                countsql = "SELECT count(*) FROM levels WHERE name LIKE CONCAT('%', ?, '%') OR levelID = ? AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+                countprops = [req.body.str, req.body.str]
+            } else {
+                sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") LIMIT 10 OFFSET ?"
+                props = [offset]
+                countsql = "SELECT count(*) FROM levels WHERE AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+                countprops = [req.body.str, req.body.str]
+            }
             break
 
         case '1': // most downloaded
@@ -152,9 +162,9 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
                 countsql = "SELECT count(*) FROM levels WHERE authorID = ?"
                 countprops = [req.body.str]
             } else {
-                sql = "SELECT * FROM levels WHERE unlisted = 0 AND authorID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
+                sql = "SELECT * FROM levels WHERE authorID = ? ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
                 props = [req.body.str, offset]
-                countsql = "SELECT count(*) FROM levels WHERE unlisted = 0 AND authorID = ?"
+                countsql = "SELECT count(*) FROM levels WHERE authorID = ?"
                 countprops = [req.body.str]
             }
             break
@@ -172,7 +182,8 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND objects > 9999"
             countprops = []
             break
-
+        
+        case '19':
         case '10': // map pack
             if(!/^\d+(?:,\d+)*$/.test(req.body.str)) return -1
 
@@ -182,17 +193,44 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             countprops = []
             break
 
-        case '11': // map pack
+        case '11': // awarded
             sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0 ORDER BY rateTimestamp DESC, timestamp LIMIT 10 OFFSET ?"
             props = [offset]
             countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0"
             countprops = []
             break
 
-        case '11': // awarded
-            sql = "SELECT * FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0 ORDER BY rateTimestamp DESC, timestamp LIMIT 10 OFFSET ?"
+        case '12': // followed
+            if(req.body.str == '') return '###0:0:10#f5da5823d94bbe7208dd83a30ff427c7d88fdb99'
+            if(!/^\d+(?:,\d+)*$/.test(req.body.str)) return -1
+
+            sql = "SELECT * FROM levels WHERE authorID IN (" + req.body.str + ") AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
             props = [offset]
-            countsql = "SELECT count(*) FROM levels WHERE (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") AND stars > 0"
+            countsql = "SELECT count(*) FROM levels WHERE authorID IN (" + req.body.str + ") AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
+            countprops = []
+            break
+
+        case '13': // friends
+            if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
+
+            let friends = await query("SELECT * FROM friends LEFT JOIN accounts ON (friends.user1 = accounts.accountID AND friends.user1 != ?) OR (friends.user2 = accounts.accountID AND friends.user2 != ?) WHERE user1 = ? OR user2 = ?", [req.body.accountID, req.body.accountID, req.body.accountID, req.body.accountID])
+            let frstr = ''
+
+            friends.forEach((friend: any) => {
+                if(friend.user1 != req.body.accountID)
+                    frstr += `${friend.user1},`
+                else if(friend.user2 != req.body.accountID)
+                    frstr += `${friend.user2},`
+            })
+
+            frstr = frstr.slice(0, -1)
+
+            if(frstr == '') return '###0:0:10#f5da5823d94bbe7208dd83a30ff427c7d88fdb99'
+            if(!/^\d+(?:,\d+)*$/.test(frstr)) return -1
+
+            sql = "SELECT * FROM levels WHERE authorID IN (" + frstr + ") AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ") ORDER BY timestamp DESC LIMIT 10 OFFSET ?"
+            props = [offset]
+            countsql = "SELECT count(*) FROM levels WHERE authorID IN (" + frstr + ") AND (" + (filters.length > 0 ? filters.join(') AND (') : '1') + ")"
             countprops = []
             break
 
@@ -235,7 +273,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
                 songs += `1~|~${song[0].songID}~|~2~|~${song[0].name}~|~3~|~0~|~4~|~${song[0].author}~|~5~|~${song[0].size}~|~6~|~${song[0].youtube}~|~7~|~${song[0].authorYoutube}~|~8~|~1~|~10~|~${encodeURIComponent(song[0].url)}~:~`
             }
         }
-        hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.coins
+        hash += String(lvl.levelID)[0] + String(lvl.levelID)[String(lvl.levelID).length - 1] + lvl.stars + lvl.verifiedCoins
     }
 
     levels = levels.slice(0, -1)
