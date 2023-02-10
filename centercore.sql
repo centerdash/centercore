@@ -2,10 +2,10 @@
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Хост: 127.0.0.1
--- Время создания: Фев 03 2023 г., 09:34
--- Версия сервера: 10.4.27-MariaDB
--- Версия PHP: 8.0.25
+-- Host: 127.0.0.1
+-- Generation Time: Feb 10, 2023 at 04:06 PM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.0.25
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `centercore`
+-- Database: `centercore`
 --
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `accounts`
+-- Table structure for table `accounts`
 --
 
 CREATE TABLE `accounts` (
@@ -76,7 +76,7 @@ CREATE TABLE `accounts` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `acc_comments`
+-- Table structure for table `acc_comments`
 --
 
 CREATE TABLE `acc_comments` (
@@ -90,7 +90,7 @@ CREATE TABLE `acc_comments` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `blocks`
+-- Table structure for table `blocks`
 --
 
 CREATE TABLE `blocks` (
@@ -103,7 +103,7 @@ CREATE TABLE `blocks` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `comments`
+-- Table structure for table `comments`
 --
 
 CREATE TABLE `comments` (
@@ -119,7 +119,7 @@ CREATE TABLE `comments` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `daily`
+-- Table structure for table `daily`
 --
 
 CREATE TABLE `daily` (
@@ -132,20 +132,22 @@ CREATE TABLE `daily` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `friends`
+-- Table structure for table `friends`
 --
 
 CREATE TABLE `friends` (
   `fID` int(11) NOT NULL,
   `user1` int(11) NOT NULL,
   `user2` int(11) NOT NULL,
+  `isNew1` int(11) NOT NULL DEFAULT 1,
+  `isNew2` int(11) NOT NULL DEFAULT 1,
   `timestamp` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `friend_reqs`
+-- Table structure for table `friend_reqs`
 --
 
 CREATE TABLE `friend_reqs` (
@@ -160,7 +162,7 @@ CREATE TABLE `friend_reqs` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `gauntlets`
+-- Table structure for table `gauntlets`
 --
 
 CREATE TABLE `gauntlets` (
@@ -175,7 +177,7 @@ CREATE TABLE `gauntlets` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `levels`
+-- Table structure for table `levels`
 --
 
 CREATE TABLE `levels` (
@@ -217,7 +219,7 @@ CREATE TABLE `levels` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `likes`
+-- Table structure for table `likes`
 --
 
 CREATE TABLE `likes` (
@@ -231,7 +233,7 @@ CREATE TABLE `likes` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `mappacks`
+-- Table structure for table `mappacks`
 --
 
 CREATE TABLE `mappacks` (
@@ -248,7 +250,7 @@ CREATE TABLE `mappacks` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `messages`
+-- Table structure for table `messages`
 --
 
 CREATE TABLE `messages` (
@@ -264,7 +266,7 @@ CREATE TABLE `messages` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `quests`
+-- Table structure for table `quests`
 --
 
 CREATE TABLE `quests` (
@@ -278,7 +280,7 @@ CREATE TABLE `quests` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `reports`
+-- Table structure for table `reports`
 --
 
 CREATE TABLE `reports` (
@@ -290,7 +292,7 @@ CREATE TABLE `reports` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `songs`
+-- Table structure for table `songs`
 --
 
 CREATE TABLE `songs` (
@@ -307,7 +309,7 @@ CREATE TABLE `songs` (
 -- --------------------------------------------------------
 
 --
--- Структура таблицы `suggestions`
+-- Table structure for table `suggestions`
 --
 
 CREATE TABLE `suggestions` (
@@ -319,11 +321,11 @@ CREATE TABLE `suggestions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Индексы сохранённых таблиц
+-- Indexes for dumped tables
 --
 
 --
--- Индексы таблицы `accounts`
+-- Indexes for table `accounts`
 --
 ALTER TABLE `accounts`
   ADD PRIMARY KEY (`accountID`),
@@ -331,191 +333,191 @@ ALTER TABLE `accounts`
   ADD UNIQUE KEY `token` (`token`);
 
 --
--- Индексы таблицы `acc_comments`
+-- Indexes for table `acc_comments`
 --
 ALTER TABLE `acc_comments`
   ADD PRIMARY KEY (`accCommentID`);
 
 --
--- Индексы таблицы `blocks`
+-- Indexes for table `blocks`
 --
 ALTER TABLE `blocks`
   ADD PRIMARY KEY (`blockID`);
 
 --
--- Индексы таблицы `comments`
+-- Indexes for table `comments`
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`commentID`);
 
 --
--- Индексы таблицы `daily`
+-- Indexes for table `daily`
 --
 ALTER TABLE `daily`
   ADD PRIMARY KEY (`dailyID`);
 
 --
--- Индексы таблицы `friends`
+-- Indexes for table `friends`
 --
 ALTER TABLE `friends`
   ADD PRIMARY KEY (`fID`);
 
 --
--- Индексы таблицы `friend_reqs`
+-- Indexes for table `friend_reqs`
 --
 ALTER TABLE `friend_reqs`
   ADD PRIMARY KEY (`freqID`);
 
 --
--- Индексы таблицы `gauntlets`
+-- Indexes for table `gauntlets`
 --
 ALTER TABLE `gauntlets`
   ADD PRIMARY KEY (`gauntletID`);
 
 --
--- Индексы таблицы `levels`
+-- Indexes for table `levels`
 --
 ALTER TABLE `levels`
   ADD PRIMARY KEY (`levelID`);
 
 --
--- Индексы таблицы `likes`
+-- Indexes for table `likes`
 --
 ALTER TABLE `likes`
   ADD PRIMARY KEY (`likeID`);
 
 --
--- Индексы таблицы `mappacks`
+-- Indexes for table `mappacks`
 --
 ALTER TABLE `mappacks`
   ADD PRIMARY KEY (`mappackID`);
 
 --
--- Индексы таблицы `messages`
+-- Indexes for table `messages`
 --
 ALTER TABLE `messages`
   ADD PRIMARY KEY (`messageID`);
 
 --
--- Индексы таблицы `quests`
+-- Indexes for table `quests`
 --
 ALTER TABLE `quests`
   ADD PRIMARY KEY (`questID`);
 
 --
--- Индексы таблицы `reports`
+-- Indexes for table `reports`
 --
 ALTER TABLE `reports`
   ADD PRIMARY KEY (`reportID`);
 
 --
--- Индексы таблицы `songs`
+-- Indexes for table `songs`
 --
 ALTER TABLE `songs`
   ADD PRIMARY KEY (`songID`);
 
 --
--- Индексы таблицы `suggestions`
+-- Indexes for table `suggestions`
 --
 ALTER TABLE `suggestions`
   ADD PRIMARY KEY (`suggestID`);
 
 --
--- AUTO_INCREMENT для сохранённых таблиц
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT для таблицы `accounts`
+-- AUTO_INCREMENT for table `accounts`
 --
 ALTER TABLE `accounts`
   MODIFY `accountID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `acc_comments`
+-- AUTO_INCREMENT for table `acc_comments`
 --
 ALTER TABLE `acc_comments`
   MODIFY `accCommentID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `blocks`
+-- AUTO_INCREMENT for table `blocks`
 --
 ALTER TABLE `blocks`
   MODIFY `blockID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `comments`
+-- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
   MODIFY `commentID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `daily`
+-- AUTO_INCREMENT for table `daily`
 --
 ALTER TABLE `daily`
   MODIFY `dailyID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `friends`
+-- AUTO_INCREMENT for table `friends`
 --
 ALTER TABLE `friends`
   MODIFY `fID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `friend_reqs`
+-- AUTO_INCREMENT for table `friend_reqs`
 --
 ALTER TABLE `friend_reqs`
   MODIFY `freqID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `gauntlets`
+-- AUTO_INCREMENT for table `gauntlets`
 --
 ALTER TABLE `gauntlets`
   MODIFY `gauntletID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `levels`
+-- AUTO_INCREMENT for table `levels`
 --
 ALTER TABLE `levels`
   MODIFY `levelID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `likes`
+-- AUTO_INCREMENT for table `likes`
 --
 ALTER TABLE `likes`
   MODIFY `likeID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `mappacks`
+-- AUTO_INCREMENT for table `mappacks`
 --
 ALTER TABLE `mappacks`
   MODIFY `mappackID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `messages`
+-- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
   MODIFY `messageID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `quests`
+-- AUTO_INCREMENT for table `quests`
 --
 ALTER TABLE `quests`
   MODIFY `questID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `reports`
+-- AUTO_INCREMENT for table `reports`
 --
 ALTER TABLE `reports`
   MODIFY `reportID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `songs`
+-- AUTO_INCREMENT for table `songs`
 --
 ALTER TABLE `songs`
   MODIFY `songID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT для таблицы `suggestions`
+-- AUTO_INCREMENT for table `suggestions`
 --
 ALTER TABLE `suggestions`
   MODIFY `suggestID` int(11) NOT NULL AUTO_INCREMENT;

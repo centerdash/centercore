@@ -29,6 +29,9 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
         out = out.slice(0, -1)
 
+        await query("UPDATE friends SET isNew1 = 0 WHERE user2 = ?", [req.body.accountID])
+        await query("UPDATE friends SET isNew2 = 0 WHERE user1 = ?", [req.body.accountID])
+
         Logger.event_get('Friend list fetched')
         return out
     } else {
