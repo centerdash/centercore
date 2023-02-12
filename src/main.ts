@@ -74,7 +74,7 @@ import getSongInfoHandler from './features/misc/getSongInfo'
 import getGauntletsHandler from './features/packs/getGauntlets'
 import getMapPacksHandler from './features/packs/getMapPacks'
 
-const server = fastify({ bodyLimit: 104857600 })
+const server = fastify({ bodyLimit: 104857600, logger: process.env.LOG_REQUESTS == '1' })
 server.register(formbody)
 
 server.post(`${process.env.SERVER_BASE_PATH}/accounts/registerGJAccount.php`, registerHandler)
