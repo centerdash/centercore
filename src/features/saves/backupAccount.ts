@@ -13,8 +13,6 @@ type Body = {
 
 export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: FastifyReply) {
     if(!req.body.userName || !req.body.password || !req.body.saveData) return -1
-    
-    console.log('account backup attempt')
 
     const q = await query("SELECT password, accountID FROM accounts WHERE userName = ?", [req.body.userName])
 
