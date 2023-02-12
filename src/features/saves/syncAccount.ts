@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { compareSync } from 'bcrypt'
 import { query } from '../../lib/db'
-import { readFileSync, existsSync, fstat } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import Logger from '../../lib/logger'
 
 type Body = {
@@ -21,7 +21,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
 
     let saveData
     try {
-        saveData = readFileSync(`${__dirname}/../../../data/accounts/${q[0].accountID}`)
+        saveData = readFileSync(`${__dirname}/../../../data/accounts/${q[0].accountID}`, 'utf-8')
     } catch(err) {
         console.log(err)
         return -1
