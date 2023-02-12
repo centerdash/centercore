@@ -25,7 +25,7 @@ export default async function handler(req: FastifyRequest<{ Body: Body }>, rep: 
             if(!req.body.accountID || !req.body.gjp) return -1
             if(!(await verifyGJP(req.body.accountID, req.body.gjp))) return -1
 
-            q = await query("SELECT * FROM friends LEFT JOIN accounts ON friends.user1 = accounts.accountID OR friends.user2 = accounts.accountID WHERE user1 = ? OR user2 = ? ORDER BY accounts.stars DESC LIMIT 100", [req.body.accountID, req.body.accountID])
+            q = await query("SELECT * FROM friends LEFT JOIN accounts ON friends.user1 = accounts.accountID OR friends.user2 = accounts.accountID WHERE user1 = ? OR user2 = ? GROUP BY accounts.userName ORDER BY accounts.stars DESC LIMIT 100", [req.body.accountID, req.body.accountID])
             break
 
         case 'creators':
