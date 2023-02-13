@@ -1,5 +1,5 @@
 # centercore
-Geometry Dash server emulator in TypeScript and MySQL
+Geometry Dash server emulator
 
 ## Setup
 
