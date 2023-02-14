@@ -96,7 +96,7 @@ export default class Commands {
 
             Logger.event_create('Level added to weekly queue')
             return 'Level added to weekly queue!'
-        } else if(comment.startsWith('!demon') && isArgumentCommand && (modType == 2)) {
+        } else if(comment.startsWith('!demon') && isArgumentCommand && (modType == 1 || modType == 2)) {
             let demon = comment.split(' ')[1]
 
             if(demon == 'easy') {
