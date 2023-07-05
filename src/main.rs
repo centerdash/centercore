@@ -5,6 +5,7 @@ use mongodb::{Client, Database};
 use dotenv::dotenv;
 
 mod routes;
+mod models;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
