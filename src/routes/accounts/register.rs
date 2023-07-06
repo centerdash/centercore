@@ -9,6 +9,7 @@ use crate::models::account::Account;
 
 #[derive(Debug, Deserialize)]
 pub struct Body {
+    #[serde(rename = "userName")]
     username: String,
     password: String,
     email: String,
