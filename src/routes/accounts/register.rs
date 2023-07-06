@@ -42,6 +42,7 @@ pub async fn handler(form: web::Form<Body>, db: Data<Database>) -> impl Responde
         password: password_hash,
         email: form.email.to_owned(),
         timestamp,
+        stars: 0,
     }, None).await.unwrap();
 
     HttpResponse::Ok().body("1")

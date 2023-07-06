@@ -7,4 +7,5 @@ pub struct Account {
     pub password: String,
     pub email: String,
     pub timestamp: usize,
+    pub stars: usize,
 }
