@@ -6,6 +6,7 @@ use sqlx::PgPool;
 
 mod routes;
 mod models;
+mod utils;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -41,6 +42,9 @@ async fn main() -> std::io::Result<()> {
                     .service(routes::accounts::login::handler)
                     .service(routes::profiles::get_user_info::handler)
                     .service(routes::scores::update_user_score::handler)
+                    .service(routes::comments::get_account_comments::handler)
+                    .service(routes::comments::upload_acc_comment::handler)
+                    .service(routes::comments::delete_acc_comment::handler)
             )
     })
     .bind(("127.0.0.1", port.parse().unwrap()))?

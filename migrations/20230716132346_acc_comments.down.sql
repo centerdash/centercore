@@ -1,0 +1,1 @@
+DROP TABLE acc_comments;
