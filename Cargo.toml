@@ -6,14 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix = "0.13.0"
 actix-web = "4.3.1"
 bcrypt = "0.14.0"
 dotenv = "0.15.0"
 env_logger = "0.10.0"
-futures = "0.3.28"
 log = "0.4.19"
-mongodb = "2.6.0"
 rand = "0.8.5"
 serde = "1.0.166"
 sqlx = { version = "0.7", features = ["runtime-tokio", "tls-rustls", "postgres"] }
