@@ -12,6 +12,7 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
+    let port: String = env::var("PORT").unwrap_or(String::from("8080"));
     let url_prefix: String = env::var("URL_PREFIX").expect("URL_PREFIX not found in your .env");
     let pg_url: String = env::var("DATABASE_URL").expect("DATABASE_URL not found in your .env");
 
@@ -28,6 +29,8 @@ async fn main() -> std::io::Result<()> {
 
     sqlx::migrate!().run(&db).await.unwrap();
 
+    log::info!("Starting webserver at 127.0.0.1:{}", port);
+
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())
@@ -40,7 +43,7 @@ async fn main() -> std::io::Result<()> {
                     .service(routes::scores::update_user_score::handler)
             )
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("127.0.0.1", port.parse().unwrap()))?
     .run()
     .await
 }
