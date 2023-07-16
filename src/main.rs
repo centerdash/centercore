@@ -1,8 +1,8 @@
 use std::env;
 
-use actix_web::{App, HttpServer, web::{Data, self}, middleware::Logger};
-use mongodb::{Client, Database};
+use actix_web::{App, HttpServer, web, middleware::Logger};
 use dotenv::dotenv;
+use sqlx::PgPool;
 
 mod routes;
 mod models;
@@ -10,25 +10,34 @@ mod models;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
-
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
     let url_prefix: String = env::var("URL_PREFIX").expect("URL_PREFIX not found in your .env");
-    let mongo_uri: String = env::var("MONGO_URI").expect("MONGO_URI not found in your .env");
-    let mongo_db: String = env::var("MONGO_DB").expect("MONGO_DB not found in your .env");
+    let pg_url: String = env::var("DATABASE_URL").expect("DATABASE_URL not found in your .env");
 
-    let mongo_client: Client = Client::with_uri_str(mongo_uri).await.unwrap();
-    let db: Database = mongo_client.database(mongo_db.as_str());
-    let db_data: Data<Database> = Data::new(db);
+    let db: PgPool = match PgPool::connect(&pg_url).await {
+        Ok(db) => {
+            log::info!("Connected to database");
+            db
+        },
+        Err(err) => {
+            log::error!("Failed to connect to the database: {:?}", err);
+            std::process::exit(1);
+        }
+    };
+
+    sqlx::migrate!().run(&db).await.unwrap();
 
     HttpServer::new(move || {
         App::new()
-            .wrap(Logger::new("%a \"%r\" %s %b \"%{Referer}i\" \"%{User-Agent}i\" %T"))
-            .app_data(db_data.clone())
+            .wrap(Logger::default())
+            .app_data(web::Data::new(db.clone()))
             .service(
                 web::scope(url_prefix.as_str())
                     .service(routes::accounts::register::handler)
                     .service(routes::accounts::login::handler)
+                    .service(routes::profiles::get_user_info::handler)
+                    .service(routes::scores::update_user_score::handler)
             )
     })
     .bind(("127.0.0.1", 8080))?

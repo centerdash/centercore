@@ -9,6 +9,8 @@ services:
     env_file:
       - .env.docker
   
-  mongo:
-    image: mongo
+  postgres:
+    image: postgres
     restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
