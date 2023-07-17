@@ -8,7 +8,6 @@ use crate::{models::account::Account, utils::encryption};
 pub struct Body {
     #[serde(rename = "accountID")]
     account_id: i64,
-    #[serde(rename = "gjp")]
     gjp: String,
     #[serde(rename = "mS")]
     ms: i64,

@@ -46,6 +46,7 @@ async fn main() -> std::io::Result<()> {
                     .service(routes::comments::get_account_comments::handler)
                     .service(routes::comments::upload_acc_comment::handler)
                     .service(routes::comments::delete_acc_comment::handler)
+                    .service(routes::mods::request_user_access::handler)
             )
     })
     .bind(("127.0.0.1", port.parse().unwrap()))?

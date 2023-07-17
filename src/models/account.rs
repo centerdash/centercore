@@ -33,4 +33,5 @@ pub struct Account {
     pub youtube: Option<String>,
     pub twitter: Option<String>,
     pub twitch: Option<String>,
+    pub moderator: i32,
 }

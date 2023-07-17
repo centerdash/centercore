@@ -29,5 +29,6 @@ CREATE TABLE accounts (
     frs int NOT NULL DEFAULT 0,
     youtube varchar(255),
     twitter varchar(255),
-    twitch varchar(255)
+    twitch varchar(255),
+    moderator int NOT NULL DEFAULT 0
 );
