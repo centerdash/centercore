@@ -1,6 +1,6 @@
 use actix_web::{Responder, HttpResponse, post, web::{Data, Form}};
 use serde::Deserialize;
-use sqlx::{PgPool, postgres::PgQueryResult};
+use sqlx::PgPool;
 
 use crate::{models::account::Account, utils::encryption};
 
@@ -30,15 +30,11 @@ async fn handler(form: Form<Body>, db: Data<PgPool>) -> impl Responder {
         return HttpResponse::Ok().body("-1");
     }
 
-    let result: PgQueryResult = sqlx::query("DELETE FROM acc_comments WHERE account_comment_id = $1 AND account_id = $2")
+    sqlx::query("DELETE FROM acc_comments WHERE account_comment_id = $1 AND account_id = $2")
         .bind(&form.comment_id)
         .bind(&account_data.account_id)
         .execute(db.get_ref())
         .await.unwrap();
 
-    if result.rows_affected() == 1 {
-        HttpResponse::Ok().body("1")
-    } else {
-        HttpResponse::Ok().body("-1")
-    }
+    HttpResponse::Ok().body("1")
 }

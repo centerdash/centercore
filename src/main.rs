@@ -41,6 +41,7 @@ async fn main() -> std::io::Result<()> {
                     .service(routes::accounts::register::handler)
                     .service(routes::accounts::login::handler)
                     .service(routes::profiles::get_user_info::handler)
+                    .service(routes::profiles::update_acc_settings::handler)
                     .service(routes::scores::update_user_score::handler)
                     .service(routes::comments::get_account_comments::handler)
                     .service(routes::comments::upload_acc_comment::handler)
